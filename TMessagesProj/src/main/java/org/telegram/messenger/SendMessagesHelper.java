@@ -1929,6 +1929,8 @@ public class SendMessagesHelper implements NotificationCenter.NotificationCenter
     }
 
     private void performSendMessageRequest(final TLObject req, final TLRPC.Message newMsgObj, final String originalPath) {
+
+
         putToSendingMessages(newMsgObj);
         ConnectionsManager.getInstance().sendRequest(req, new RequestDelegate() {
             @Override
@@ -2875,7 +2877,7 @@ public class SendMessagesHelper implements NotificationCenter.NotificationCenter
         });
     }
 
-    public static void prepareSendingPhotos(ArrayList<String> paths, ArrayList<Uri> uris, final long dialog_id, final MessageObject reply_to_msg, final ArrayList<String> captions, final boolean asAdmin) {
+    public static void  prepareSendingPhotos(ArrayList<String> paths, ArrayList<Uri> uris, final long dialog_id, final MessageObject reply_to_msg, final ArrayList<String> captions, final boolean asAdmin) {
         if (paths == null && uris == null || paths != null && paths.isEmpty() || uris != null && uris.isEmpty()) {
             return;
         }

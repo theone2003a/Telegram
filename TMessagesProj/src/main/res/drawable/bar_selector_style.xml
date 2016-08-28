@@ -2,17 +2,18 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_pressed="true">
         <shape android:shape="rectangle">
-            <solid android:color="#40a0bcdd" />
+            <solid android:color="#40E8A8AB" />
         </shape>
     </item>
     <item android:state_focused="true">
         <shape android:shape="rectangle">
-            <solid android:color="#40a0bcdd" />
+            <solid android:color="#40E8A8AB" />
         </shape>
     </item>
     <item android:state_selected="true">
         <shape android:shape="rectangle">
-            <solid android:color="#40a0bcdd" />
+            <solid android:color="#40E8A8AB" />
+<!--            <solid android:color="#40a0bcdd" />-->
         </shape>
     </item>
     <item android:drawable="@drawable/transparent" />

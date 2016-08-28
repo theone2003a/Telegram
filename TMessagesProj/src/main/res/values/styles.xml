@@ -42,7 +42,8 @@
     <!--ACTION BAR-->
 
     <style name="ActionBar.Transparent.TMessages.Start" parent="android:style/Widget.Holo.Light.ActionBar">
-        <item name="android:background">#ff54759e</item>
+        <item name="android:background">#FFAD5C5E</item>
+<!--        <item name="android:background">#ff54759e</item>-->
         <item name="android:logo">@drawable/transparent</item>
         <item name="android:title">""</item>
     </style>
