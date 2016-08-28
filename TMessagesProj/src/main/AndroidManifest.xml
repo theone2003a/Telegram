@@ -192,6 +192,16 @@
         <service android:name=".VideoEncodingService" android:enabled="true"/>
         <service android:name=".MusicPlayerService" android:exported="true" android:enabled="true"/>
 
+        <!-- Mqtt Service -->
+        <service
+            android:name="org.eclipse.paho.android.service.MqttService"
+            android:label="Ejabberd sync Service" />
+
+        <!-- Mqtt manual Service -->
+        <service
+            android:name="org.telegram.messenger.mqtt.MQTTService"
+            android:label="Contact sync Service" />
+
         <receiver android:name=".MusicPlayerReceiver" >
             <intent-filter>
                 <action android:name="org.telegram.android.musicplayer.close" />

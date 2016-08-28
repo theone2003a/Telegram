@@ -12,6 +12,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import org.telegram.messenger.mqtt.MQTTService;
+
 public class AppStartReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         AndroidUtilities.runOnUIThread(new Runnable() {
@@ -20,5 +22,8 @@ public class AppStartReceiver extends BroadcastReceiver {
                 ApplicationLoader.startPushService();
             }
         });
+
+        //mast - start mqtt service on mobile boot
+        context.startService(new Intent(context, MQTTService.class));
     }
 }

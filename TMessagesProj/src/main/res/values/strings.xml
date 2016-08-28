@@ -1183,4 +1183,48 @@
     <string name="formatterDay24H">HH:mm</string>
     <string name="formatterDay12H">h:mm a</string>
     <string name="formatDateAtTime">%1$s at %2$s</string>
+
+
+    <!-- Strings for Mqtt  -->
+    <string name='mqttDateFormat'>dd/MM/yy \'at\' HH:mm:ss</string>
+    <string name="mqttTimestamp">&lt;br/&gt; &lt;small&gt; %1$s &lt;/small&gt;</string>
+
+    <string name="clientID">Client ID</string>
+    <string name="connectedto">Connected to </string>
+
+    <string name="Disconnect">Disconnect</string>
+    <string name="subscribe">Subscribe</string>
+    <string name="publish">Publish</string>
+    <string name="title_activity_subscribe">Subscribe</string>
+    <string name="disconnected">Disconnected from</string>
+    <string name="topic">Topic</string>
+    <string name="history">History</string>
+    <string name="title_activity_history">History</string>
+    <string name="subscribed">Subscribed to </string>
+    <string name="token">org.eclipse.paho.android.service.sample.ClientConnections</string>
+    <string name="no_status">Unknown connection status to</string>
+    <string name="connecting">Connecting to</string>
+    <string name="disconnecting">Disconnecting from</string>
+    <string name="connectionError">An error occurred connecting to</string>
+
+    <!-- Strings that need formatting  -->
+    <string name="messageRecieved">Received message %1$s &lt;br/&gt; &lt;small&gt;Topic: %2$s &lt;/small&gt; </string>
+    <string name="notification">%1$s has received %2$s on topic %3$s</string>
+    <string name="toast_pub_success">Published message: %1$s to topic: %2$s</string>
+    <string name="toast_sub_success">Subscribed to %1$s</string>
+    <string name="toast_disconnected">Disconnected</string>
+    <string name="toast_pub_failed">Failed to publish message: %1$s to topic: %2$s</string>
+    <string name="toast_sub_failed">Failed to subscribe to %1$s</string>
+    <string name="connection_lost">%1$s has lost connection to %2$s</string>
+    <string name="failure_disconnect">Disconnect failed.&lt;br/&gt; &lt;small&gt;Reason: %s&lt;/small&gt; </string>
+    <string name="failure_connect">Client failed to connect.&lt;br/&gt; &lt;small&gt;Reason: %s&lt;/small&gt;</string>
+    <string name="client_connected">Client connected successfully</string>
+
+    <string name="title_activity_last_will">Last Will Message</string>
+    <string name="setLastWill">Set Last Will Message</string>
+    <string name="willMessage">Set Last Will Message</string>
+    <string name="willMessageShort">Last Will</string>
+    <string name="notifyTitle">MQTT Message Received</string>
+    <string name="notifyTitle_connectionLost">MQTT Client Has Lost Connection</string>
+
 </resources>
