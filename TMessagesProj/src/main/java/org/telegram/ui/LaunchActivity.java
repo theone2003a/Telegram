@@ -53,6 +53,7 @@ import org.telegram.messenger.NativeCrashManager;
 import org.telegram.messenger.SendMessagesHelper;
 import org.telegram.messenger.UserObject;
 import org.telegram.messenger.Utilities;
+import org.telegram.messenger.mqtt.MQTTService;
 import org.telegram.messenger.query.StickersQuery;
 import org.telegram.messenger.ApplicationLoader;
 import org.telegram.messenger.FileLog;
@@ -116,8 +117,11 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+
         ApplicationLoader.postInitApplication();
         NativeCrashManager.handleDumpFiles(this);
+
 
         if (!UserConfig.isClientActivated()) {
             Intent intent = getIntent();
@@ -137,6 +141,11 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                     return;
                 }
             }
+        } else {
+            //mast - start the mqtt background service to handle messaging stuff and stay running
+            //mast - mqtt our own background service
+            Intent backgroundService = new Intent(this, MQTTService.class);
+            startService(backgroundService);
         }
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);

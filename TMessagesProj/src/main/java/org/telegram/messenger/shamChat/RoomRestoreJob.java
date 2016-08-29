@@ -29,7 +29,7 @@ public class RoomRestoreJob extends Job {
     private static final AtomicInteger jobCounter = new AtomicInteger(0);
     private final int id;
 //reza_ak
-    final String  userId					= "6";
+    final String  userId = "6000000";
 
     String[] allTopics;
     int [] qosArray;

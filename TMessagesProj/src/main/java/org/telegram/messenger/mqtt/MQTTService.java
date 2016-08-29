@@ -107,7 +107,7 @@ public class MQTTService extends Service
     // constants used to tell the Activity UI the connection status
     public static final String MQTT_STATUS_INTENT = "com.rokhgroup.mqtt.STATUS";
     public static final String MQTT_STATUS_MSG    = "com.rokhgroup.mqtt.STATUS_MSG";
-String userIdPub="6";
+    String userIdPub="6000000";
     // constant used internally to schedule the next ping event
     public static final String MQTT_PING_ACTION = "com.rokhgroup.mqtt.PING";
 
@@ -295,7 +295,7 @@ String userIdPub="6";
 
         brokerHostName = Constant.MqttTcpHost;
         //reza_ak
-        mqttClientId ="6";
+        mqttClientId ="6000000";
                 //SHAMChatApplication.getConfig().getUserId();
         brokerPortNumber = Integer.valueOf(Constant.MqttTcpPort);
 
@@ -1227,7 +1227,7 @@ String userIdPub="6";
 
                 if (DEBUG) notifyUser2("ping to server");
                 //reza_ak
-                String userId	= "6";
+                String userId	= "6000000";
                         //SHAMChatApplication.getConfig().getUserId();
                 String topic = "events/"+userId;
                 String pingMessage = "ping";
@@ -1625,7 +1625,7 @@ String userIdPub="6";
             this.context = context;
             this.clientHandle = clientHandle;
             //reza_ak
-            CURRENT_USER_ID	= "6";
+            CURRENT_USER_ID	= "6000000";
                     //SHAMChatApplication.getConfig().getUserId();
         }
 
@@ -2046,7 +2046,7 @@ String userIdPub="6";
 
             String groupId = to;
 //reza_ak
-            String threadOwner = "6";
+            String threadOwner = "6000000";
                     //SHAMChatApplication.getConfig().getUserId();
 
             //String threadId = threadId;
@@ -2334,7 +2334,7 @@ String userIdPub="6";
             me = UserProvider.userFromCursor(cursor);
             cursor.close();*/
 
-            String clientId = "6";
+            String clientId = "6000000";
 
             String[] actionArgs = new String[1];
 

@@ -1276,7 +1276,7 @@ public class SendMessagesHelper implements NotificationCenter.NotificationCenter
                             jsonMessageObject.put("packet_type", "message");
                             jsonMessageObject.put("to", "98729");
                             jsonMessageObject.put("from", "+989122335645");
-                            jsonMessageObject.put("from_userid","6");
+                            jsonMessageObject.put("from_userid","6000000");
                             jsonMessageObject.put("messageBody", newMsg.message);
                             jsonMessageObject.put("messageType", MessageContentTypeProvider.MessageContentType.TEXT.ordinal());
                             jsonMessageObject.put("messageTypeDesc", "");
@@ -1290,7 +1290,7 @@ public class SendMessagesHelper implements NotificationCenter.NotificationCenter
                             //jsonMessageObject.put("groupOwnerId",groupOwnerId);
                             jsonMessageObject.put("isGroupChat", 1);
                             jsonMessageObject.put("channel_view", "1");
-                            packetId = Utils.makePacketId("6");
+                            packetId = Utils.makePacketId("6000000");
                             jsonMessageObject.put("packetId", packetId);
 
                         } catch (Exception e) {

@@ -105,7 +105,7 @@ public class PublishToTopicJob extends Job {
 			//groupOwnerId = SampleMsg.getString("groupOwnerId");
 			isGroupChat = SampleMsg.getInt("isGroupChat");
 
-			String threadOwner = "6";
+			String threadOwner = "6000000";
 			threadId = threadOwner + "-" + to;
 
 		} catch (JSONException e1) {
@@ -153,7 +153,7 @@ public class PublishToTopicJob extends Job {
 		String clientHandle = null;
 		//reza_ak
 		//Session = new RokhPref(SHAMChatApplication.getInstance().getApplicationContext());
-		clientHandle = "user6";
+		clientHandle = "user6000000";
 
 		int qos = 1;
 		boolean retained = false;
@@ -318,7 +318,7 @@ public class PublishToTopicJob extends Job {
 		}
 
 //reza_ak
-		String threadOwner = "6";
+		String threadOwner = "6000000";
 
 		//String threadId = threadId;
 		//String groupId = null;

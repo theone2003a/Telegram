@@ -292,9 +292,6 @@ public class ApplicationLoader extends Application {
 
         startPushService();
 
-        //reza_ak
-        Intent backgroundService = new Intent(this, MQTTService.class);
-        startService(backgroundService);
     }
 
     public static void startPushService() {
