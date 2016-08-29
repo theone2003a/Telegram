@@ -26,10 +26,12 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.util.Base64;
+import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 
+import org.telegram.messenger.mqtt.MQTTService;
 import org.telegram.tgnet.ConnectionsManager;
 import org.telegram.tgnet.SerializedData;
 import org.telegram.tgnet.TLRPC;
@@ -40,6 +42,12 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Locale;
 
+//reza_ak
+import com.path.android.jobqueue.JobManager;
+
+
+
+
 public class ApplicationLoader extends Application {
 
     private static Drawable cachedWallpaper;
@@ -47,12 +55,16 @@ public class ApplicationLoader extends Application {
     private static boolean isCustomTheme;
     private static final Object sync = new Object();
 
+
     public static volatile Context applicationContext;
     public static volatile Handler applicationHandler;
     private static volatile boolean applicationInited = false;
 
     public static volatile boolean isScreenOn = false;
     public static volatile boolean mainInterfacePaused = true;
+//reza_ak
+    private static JobManager jobManager;
+    private static ApplicationLoader instance;
 
     public static boolean isCustomTheme() {
         return isCustomTheme;
@@ -259,6 +271,9 @@ public class ApplicationLoader extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        //reza_ak
+        configureJobManager();
+
 
         if (Build.VERSION.SDK_INT < 11) {
             java.lang.System.setProperty("java.net.preferIPv4Stack", "true");
@@ -276,6 +291,10 @@ public class ApplicationLoader extends Application {
         applicationHandler = new Handler(applicationContext.getMainLooper());
 
         startPushService();
+
+        //reza_ak
+        Intent backgroundService = new Intent(this, MQTTService.class);
+        startService(backgroundService);
     }
 
     public static void startPushService() {
@@ -350,4 +369,54 @@ public class ApplicationLoader extends Application {
         }
         return true;*/
     }
+    //reza_ak
+    private void configureJobManager() {
+      /*Configuration configuration = new Configuration.Builder(this)
+                .customLogger(new CustomLogger() {
+                    private static final String TAG = "JOBS";
+
+                    @Override
+                    public boolean isDebugEnabled() {
+                        return true;
+                    }
+
+                    @Override
+                    public void d(String text, Object... args) {
+                        Log.d(TAG, String.format(text, args));
+                    }
+
+                    @Override
+                    public void e(Throwable t, String text, Object... args) {
+                        Log.e(TAG, String.format(text, args), t);
+                    }
+
+                    @Override
+                    public void e(String text, Object... args) {
+                        Log.e(TAG, String.format(text, args));
+                    }
+                }).minConsumerCount(5)// always keep at least five consumer
+                // alive
+                .maxConsumerCount(10)// up to 10 consumers at a time
+                .loadFactor(3)// 3 jobs per consumer
+                .consumerKeepAlive(120)// wait 2 minute
+                .build();*/
+        jobManager = new JobManager(this);
+    }
+
+    public JobManager getJobManager() {
+        return jobManager;
+    }
+
+    public ApplicationLoader() {
+        super();
+        instance = this;
+    }
+
+    public static ApplicationLoader getInstance() {
+        if (instance == null)
+            throw new IllegalStateException();
+
+        return instance;
+    }
+
 }

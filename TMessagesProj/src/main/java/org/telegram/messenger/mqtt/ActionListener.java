@@ -12,23 +12,23 @@
  */
 package org.telegram.messenger.mqtt;
 
-import org.greenrobot.eventbus.EventBus;
+
 import org.telegram.messenger.R;
 import org.telegram.messenger.mqtt.Connection.ConnectionStatus;
 
 
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
+import org.telegram.messenger.shamChat.NewGroupMessageSentFailedEvent;
+import org.telegram.messenger.shamChat.NewGroupMessageSentSuccessEvent;
 
 import android.content.Context;
 import android.widget.Toast;
 
+import de.greenrobot.event.EventBus;
 
-/**
- * This Class handles receiving information from the
- * {@link MqttAndroidClient} and updating the {@link Connection} associated with 
- * the action
- */
+
+
 public class ActionListener implements IMqttActionListener {
 
   /**

@@ -23,8 +23,14 @@ import android.provider.MediaStore;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
+import com.path.android.jobqueue.JobManager;
+
+import org.json.JSONObject;
 import org.telegram.messenger.audioinfo.AudioInfo;
 import org.telegram.messenger.query.StickersQuery;
+import org.telegram.messenger.shamChat.MessageContentTypeProvider;
+import org.telegram.messenger.shamChat.PublishToTopicJob;
+import org.telegram.messenger.shamChat.Utils;
 import org.telegram.tgnet.ConnectionsManager;
 import org.telegram.tgnet.QuickAckDelegate;
 import org.telegram.tgnet.RequestDelegate;
@@ -45,6 +51,8 @@ public class SendMessagesHelper implements NotificationCenter.NotificationCenter
     private HashMap<String, ArrayList<DelayedMessage>> delayedMessages = new HashMap<>();
     private HashMap<Integer, MessageObject> unsentMessages = new HashMap<>();
     private HashMap<Integer, TLRPC.Message> sendingMessages = new HashMap<>();
+//reza_ak
+    private JobManager jobManager;
 
     protected class DelayedMessage {
         public TLObject sendRequest;
@@ -84,6 +92,9 @@ public class SendMessagesHelper implements NotificationCenter.NotificationCenter
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.httpFileDidLoaded);
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.FileDidLoaded);
         NotificationCenter.getInstance().addObserver(this, NotificationCenter.FileDidFailedLoad);
+
+        //reza_ak
+        jobManager = ApplicationLoader.getInstance().getJobManager();
     }
 
     public void cleanUp() {
@@ -1257,6 +1268,36 @@ public class SendMessagesHelper implements NotificationCenter.NotificationCenter
                             reqSend.no_webpage = true;
                         }
                         performSendMessageRequest(reqSend, newMsgObj.messageOwner, null);
+                        JSONObject jsonMessageObject = new JSONObject();
+                        String packetId = null;
+                        String timestamp = Utils.getTimeStamp();
+
+                        try {
+                            jsonMessageObject.put("packet_type", "message");
+                            jsonMessageObject.put("to", "98729");
+                            jsonMessageObject.put("from", "+989122335645");
+                            jsonMessageObject.put("from_userid","6");
+                            jsonMessageObject.put("messageBody", newMsg.message);
+                            jsonMessageObject.put("messageType", MessageContentTypeProvider.MessageContentType.TEXT.ordinal());
+                            jsonMessageObject.put("messageTypeDesc", "");
+                            jsonMessageObject.put("timestamp", timestamp);
+                            jsonMessageObject.put("groupAlias", "aa");
+                            jsonMessageObject.put("isForward", false);
+                            jsonMessageObject.put( "channeltitle", "");
+                            jsonMessageObject.put("channelhashcode", "");
+                            jsonMessageObject.put("orginalpachetid", "");
+
+                            //jsonMessageObject.put("groupOwnerId",groupOwnerId);
+                            jsonMessageObject.put("isGroupChat", 1);
+                            jsonMessageObject.put("channel_view", "1");
+                            packetId = Utils.makePacketId("6");
+                            jsonMessageObject.put("packetId", packetId);
+
+                        } catch (Exception e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                        jobManager.addJobInBackground(new PublishToTopicJob(jsonMessageObject.toString(), "groups/" + "s6:98729"));
                     }
                 } else {
                     TLRPC.TL_decryptedMessage reqSend;

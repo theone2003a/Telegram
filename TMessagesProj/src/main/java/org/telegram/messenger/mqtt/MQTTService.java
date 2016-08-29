@@ -28,22 +28,31 @@ import android.provider.Settings.Secure;
 import android.util.Log;
 import android.widget.Toast;
 
-import org.greenrobot.eventbus.EventBus;
+import org.telegram.messenger.ApplicationLoader;
+import org.telegram.messenger.R;
 import org.telegram.messenger.mqtt.Connection.ConnectionStatus;
 import com.path.android.jobqueue.JobManager;
-import com.shamchat.adapters.MyMessageType;
-import com.shamchat.androidclient.chat.extension.MessageContentTypeProvider.MessageContentType;
-import com.shamchat.events.ChannelOnLeaveEvent;
-import com.shamchat.events.CloseGroupActivityEvent;
-import com.shamchat.events.FileUploadingProgressEvent;
-import com.shamchat.events.NewMessageEvent;
-import com.shamchat.events.UpdateGroupMembersList;
-import com.shamchat.jobs.DeleteChatMessageDBLoadJob;
-import com.shamchat.jobs.PublishToTopicJob;
-import com.shamchat.jobs.RoomRestoreJob;
-import com.shamchat.jobs.SubscribeToAllTopicsJob;
-import com.shamchat.jobs.SubscribeToEventsJob;
-import com.shamchat.jobs.SyncContactsJob;
+
+import org.telegram.messenger.shamChat.ChatMessage;
+
+import org.telegram.messenger.shamChat.Constant;
+import org.telegram.messenger.shamChat.FriendGroup;
+import org.telegram.messenger.shamChat.FriendGroupMember;
+import org.telegram.messenger.shamChat.MessageThread;
+import org.telegram.messenger.shamChat.MyMessageType;
+import org.telegram.messenger.shamChat.MessageContentTypeProvider.MessageContentType;
+import org.telegram.messenger.shamChat.ChannelOnLeaveEvent;
+import org.telegram.messenger.shamChat.CloseGroupActivityEvent;
+import org.telegram.messenger.shamChat.FileUploadingProgressEvent;
+import org.telegram.messenger.shamChat.NewMessageEvent;
+import org.telegram.messenger.shamChat.RokhPref;
+import org.telegram.messenger.shamChat.UpdateGroupMembersList;
+import org.telegram.messenger.shamChat.DeleteChatMessageDBLoadJob;
+import org.telegram.messenger.shamChat.PublishToTopicJob;
+import org.telegram.messenger.shamChat.RoomRestoreJob;
+import org.telegram.messenger.shamChat.SubscribeToAllTopicsJob;
+import org.telegram.messenger.shamChat.SubscribeToEventsJob;
+//import org.telegram.messenger.shamChat.SyncContactsJob;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
@@ -59,6 +68,9 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.telegram.messenger.shamChat.User;
+import org.telegram.messenger.shamChat.Utils;
+
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -71,6 +83,8 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Map;
+
+import de.greenrobot.event.EventBus;
 
 public class MQTTService extends Service
 {
@@ -93,7 +107,7 @@ public class MQTTService extends Service
     // constants used to tell the Activity UI the connection status
     public static final String MQTT_STATUS_INTENT = "com.rokhgroup.mqtt.STATUS";
     public static final String MQTT_STATUS_MSG    = "com.rokhgroup.mqtt.STATUS_MSG";
-
+String userIdPub="6";
     // constant used internally to schedule the next ping event
     public static final String MQTT_PING_ACTION = "com.rokhgroup.mqtt.PING";
 
@@ -280,12 +294,15 @@ public class MQTTService extends Service
         //String clientId = "testshamchat1";
 
         brokerHostName = Constant.MqttTcpHost;
-        mqttClientId = SHAMChatApplication.getConfig().getUserId();
+        //reza_ak
+        mqttClientId ="6";
+                //SHAMChatApplication.getConfig().getUserId();
         brokerPortNumber = Integer.valueOf(Constant.MqttTcpPort);
 
-        Session	= new RokhPref(SHAMChatApplication.getInstance().getApplicationContext());
+        //Session	= new RokhPref(getApplicationContext());
 
-        jobManager = SHAMChatApplication.getInstance().getJobManager();
+        jobManager =  ApplicationLoader.getInstance().getJobManager();
+        //ApplicationLoader.getJobManager();
 
         // register to be notified whenever the user changes their preferences
         //  relating to background data use - so that we can respect the current
@@ -705,7 +722,8 @@ public class MQTTService extends Service
             // create a client handle
             //clientHandle		= uri + mqttClientId;
             clientHandle		= "user"+mqttClientId;
-            Session.setClientHandle(clientHandle);
+            //reza_ak
+            //Session.setClientHandle(clientHandle);
 		
 		/*if (Connections.getInstance(this).getConnection(clientHandle) != null)
 		{
@@ -814,7 +832,8 @@ public class MQTTService extends Service
 
                         if (DEBUG) notifyUser2("broker - success");
 
-                        boolean getTopics	= Session.getFirstRun();
+                        //reza_ak
+                       /* boolean getTopics	= Session.getFirstRun();
 
                         if(!getTopics){
 
@@ -827,7 +846,7 @@ public class MQTTService extends Service
                         else {
                             //Subscribe to all group topics
                             jobManager.addJobInBackground(new SubscribeToAllTopicsJob());
-                        }
+                        }*/
 
                         //Subscribe to events topic
                         jobManager.addJobInBackground(new SubscribeToEventsJob());
@@ -862,12 +881,12 @@ public class MQTTService extends Service
 
                             if (((MqttPersistenceException) arg1).getReasonCode() == 32200) {
                                 //if it is "Persistence already in use" error
-                                Notify.toast(SHAMChatApplication.getMyApplicationContext(), "P fail", Toast.LENGTH_SHORT);
+                                NotifySimple.toast(getApplicationContext(), "P fail", Toast.LENGTH_SHORT);
 							   
 							    
 							    
 							    /*try {
-							    	SHAMChatApplication.getMyApplicationContext().deleteDatabase(Persistence.DATABASE_NAME);
+							    	getApplicationContext().deleteDatabase(Persistence.DATABASE_NAME);
 						            SQLiteDatabase db = openOrCreateDatabase(Persistence.DATABASE_NAME, MODE_PRIVATE, null);
 				                    db.execSQL(Persistence.SQL_CREATE_ENTRIES);
 				                    db.close();
@@ -1207,7 +1226,9 @@ public class MQTTService extends Service
                 //https://www.eclipse.org/paho/files/javadoc/org/eclipse/paho/client/mqttv3/internal/ClientComms.html#checkForActivity%28%29
 
                 if (DEBUG) notifyUser2("ping to server");
-                String userId	= SHAMChatApplication.getConfig().getUserId();
+                //reza_ak
+                String userId	= "6";
+                        //SHAMChatApplication.getConfig().getUserId();
                 String topic = "events/"+userId;
                 String pingMessage = "ping";
                 int qos = 1;
@@ -1411,7 +1432,8 @@ public class MQTTService extends Service
         if ((event.getConsumed() == false) && !(jsonMessageString == null))
         {
 
-            Notify.notifcation(getApplicationContext(), jsonMessageString);
+            NotifySimple.toast(getApplicationContext(), jsonMessageString,Toast.LENGTH_SHORT);
+
         }
 
     }
@@ -1428,7 +1450,8 @@ public class MQTTService extends Service
 
         if (event.getUploadedPercentage() == 100 && isGroup) {
 
-            Cursor cursor = null;
+            //reza_ak
+           /*  Cursor cursor = null;
 
             cursor = getContentResolver().query(
                     ChatProviderNew.CONTENT_URI_CHAT,
@@ -1436,15 +1459,14 @@ public class MQTTService extends Service
                     ChatMessage.THREAD_ID + "=? AND " + ChatMessage.PACKET_ID +"=?" ,
                     new String[] { event.getThreadId(), event.getPacketId() },null);
 
-
-            chatProvider = new ChatProviderNew();
+ chatProvider = new ChatProviderNew();
 
 
             if (chatProvider != null && cursor.getCount() > 0) {
                 while (cursor.moveToNext()) {
                     final ChatMessage message = chatProvider.getChatMessageByCursor(cursor);
 
-                    ContentResolver mContentResolver = SHAMChatApplication.getMyApplicationContext().getContentResolver();
+                    ContentResolver mContentResolver = getApplicationContext().getContentResolver();
 
                     if (message.getThreadId().equals(event.getThreadId())) {
 
@@ -1456,7 +1478,7 @@ public class MQTTService extends Service
                         try {
 
                             Cursor cursorMe = mContentResolver.query(UserProvider.CONTENT_URI_USER,
-                                    null, UserConstants.USER_ID + "=?",
+                                    null, UserProvider.UserConstants.USER_ID + "=?",
                                     new String[] { SHAMChatApplication.getConfig().getUserId() },
                                     null);
 
@@ -1527,7 +1549,7 @@ public class MQTTService extends Service
                 }
             }
 
-            cursor.close();
+            cursor.close();*/
 
         }
 
@@ -1602,7 +1624,9 @@ public class MQTTService extends Service
         {
             this.context = context;
             this.clientHandle = clientHandle;
-            CURRENT_USER_ID	= SHAMChatApplication.getConfig().getUserId();
+            //reza_ak
+            CURRENT_USER_ID	= "6";
+                    //SHAMChatApplication.getConfig().getUserId();
         }
 
         /**
@@ -1824,8 +1848,8 @@ public class MQTTService extends Service
                             values.put(FriendGroup.DB_DESCRIPTION, description);
                             values.put(FriendGroup.DB_LINK_NAME, name);
                         }
-
-                        SHAMChatApplication.getInstance().getContentResolver().update(UserProvider.CONTENT_URI_GROUP, values, FriendGroup.DB_ID + "=?", new String[]{hashcode});
+//reza_ak
+                      //  getApplicationContext().getContentResolver().update(UserProvider.CONTENT_URI_GROUP, values, FriendGroup.DB_ID + "=?", new String[]{hashcode});
 
                         EventBus.getDefault().postSticky(new NewMessageEvent());
 
@@ -1862,14 +1886,15 @@ public class MQTTService extends Service
                 }else { //if this is a group message
 
                     if (packetType.equals("message")){
-
+//reza_ak
                         //if it is my own packet just ignore it
+                        /*
                         if (Utils.isMyOwnPacket(jsonMessageString)) return;
 
                         //notify the user
                         int messageContentType = Utils.detectMessageContentType(jsonMessageString);
 
-                        addChatMessageToDB(MyMessageType.INCOMING_MSG.ordinal(), MessageStatusType.QUEUED.ordinal(), messageContentType, jsonMessageString);
+                        addChatMessageToDB(MyMessageType.INCOMING_MSG.ordinal(), ChatMessage.MessageStatusType.QUEUED.ordinal(), messageContentType, jsonMessageString);
 
                         //here we can do something specific for each type of message like notification or other things
                         if (messageContentType == MessageContentType.TEXT.ordinal()) {}
@@ -1879,6 +1904,7 @@ public class MQTTService extends Service
                         else if (messageContentType == MessageContentType.LOCATION.ordinal()) {}
                         else if (messageContentType == MessageContentType.VOICE_RECORD.ordinal()) {}
                         else if (messageContentType == MessageContentType.MESSAGE_WITH_IMOTICONS.ordinal()) {}
+                        */
 
                     }
                     //if user x is invited to group
@@ -1967,7 +1993,7 @@ public class MQTTService extends Service
 
             boolean isExistingMessage = false;
 
-            ContentResolver mContentResolver = SHAMChatApplication.getInstance().getContentResolver();
+            ContentResolver mContentResolver = getApplicationContext().getContentResolver();
 
 
             //mast - sample message to handle sent message and insert to db
@@ -2019,8 +2045,9 @@ public class MQTTService extends Service
 
 
             String groupId = to;
-
-            String threadOwner = SHAMChatApplication.getConfig().getUserId();
+//reza_ak
+            String threadOwner = "6";
+                    //SHAMChatApplication.getConfig().getUserId();
 
             //String threadId = threadId;
             //String groupId = null;
@@ -2040,8 +2067,8 @@ public class MQTTService extends Service
 
                 Cursor chatCursor = null;
 
-
-                try {
+//reza_ak
+              /*  try {
                     //check to see if current message exists previously - ic_search using packetId of message
 
                     chatCursor = mContentResolver.query(
@@ -2111,16 +2138,16 @@ public class MQTTService extends Service
 
                             String fromGroup = groupId;
 
-     								/*String userId = fromGroup.substring(
+     								*//*String userId = fromGroup.substring(
      										fromGroup.indexOf("/") + 1,
      										fromGroup.indexOf("-"));
 
      								String username = getUsernameToDisplayForGroup(
-     										userId, fromGroup);*/
+     										userId, fromGroup);*//*
                             String userId = from;
                             //mast - will change later - currently it is phonenumber
 
-                            String username = getContactNameFromPhone(SHAMChatApplication.getMyApplicationContext(),from);
+                            String username = getContactNameFromPhone(getApplicationContext(),from);
 
                             // This is the actual sender, from value is
                             // the room name not the individual who sent it
@@ -2205,7 +2232,7 @@ public class MQTTService extends Service
 
                             }
 
-                        } else { //Group chat out going message*/
+                        } else { //Group chat out going message*//*
 
                             System.out
                                     .println("processMessage addChatMessageToDB Single chat, both directions, Group chat outgoing");
@@ -2280,7 +2307,7 @@ public class MQTTService extends Service
 
                 } finally {
                     chatCursor.close();
-                }
+                }*/
             }
 
             return isExistingMessage;
@@ -2299,14 +2326,15 @@ public class MQTTService extends Service
 
             //find our own User object
             User me;
-            ContentResolver mContentResolver = SHAMChatApplication.getMyApplicationContext().getContentResolver();
-
-            Cursor cursor = mContentResolver.query(UserProvider.CONTENT_URI_USER, null, UserConstants.USER_ID + "=?", new String[]{SHAMChatApplication.getConfig().getUserId()}, null);
+            ContentResolver mContentResolver = getApplicationContext().getContentResolver();
+            //reza_ak
+/*
+            Cursor cursor = mContentResolver.query(UserProvider.CONTENT_URI_USER, null, UserProvider.UserConstants.USER_ID + "=?", new String[]{userIdPub}, null);
             cursor.moveToFirst();
             me = UserProvider.userFromCursor(cursor);
-            cursor.close();
+            cursor.close();*/
 
-            String clientId = me.getUserId();
+            String clientId = "6";
 
             String[] actionArgs = new String[1];
 
@@ -2317,7 +2345,7 @@ public class MQTTService extends Service
                 actionArgs[0] = "groups/" + topic;
             }
 
-            final ActionListener callback = new ActionListener(SHAMChatApplication.getMyApplicationContext(),
+            final ActionListener callback = new ActionListener(getApplicationContext(),
                     ActionListener.Action.SUBSCRIBE, clientHandle, actionArgs);
 
             try {
@@ -2397,25 +2425,25 @@ public class MQTTService extends Service
                     linkName =  topic.getString("name");
                 }
 
-                RokhPref	Session	= new RokhPref(SHAMChatApplication.getInstance().getApplicationContext());
+                RokhPref	Session	= new RokhPref(getApplicationContext());
                 String clientHandle	= Session.getClientHandle();
 
-                ContentResolver mContentResolver = SHAMChatApplication.getInstance().getApplicationContext().getContentResolver();
-                String userId = SHAMChatApplication.getConfig().getUserId();
+                ContentResolver mContentResolver = getApplicationContext().getContentResolver();
+                String userId = userIdPub;
 
-
-                Cursor groupCursor = mContentResolver.query( UserProvider.CONTENT_URI_GROUP, new String[] { FriendGroup.DB_ID }, FriendGroup.CHAT_ROOM_NAME + "=?", new String[] { hashcode }, null);
+//reza_ak
+               // Cursor groupCursor = mContentResolver.query( UserProvider.CONTENT_URI_GROUP, new String[] { FriendGroup.DB_ID }, FriendGroup.CHAT_ROOM_NAME + "=?", new String[] { hashcode }, null);
 
                 boolean isUpdate = false;
-
-                if (groupCursor.getCount() > 0) {
+//reza_ak
+            /*    if (groupCursor.getCount() > 0) {
                     isUpdate = true;
-                }
+                }*/
 
                 String groupName = title;	// Group Alias
                 String ownerID = ownerId;
-
-                groupCursor.close();
+//reza_ak
+                //groupCursor.close();
 
                 System.out.println(" invitation group name " + groupName);
 
@@ -2459,19 +2487,20 @@ public class MQTTService extends Service
                 vals.put(MessageThread.THREAD_ID, thread.getThreadId());
                 vals.put(MessageThread.FRIEND_ID, thread.getFriendId());
                 vals.put(MessageThread.READ_STATUS, 0);
-                vals.put(MessageThread.LAST_UPDATED_DATETIME,Utils.formatDate(new Date().getTime(), "yyyy/MM/dd HH:mm:ss"));
+                //reza_ak
+                //vals.put(MessageThread.LAST_UPDATED_DATETIME,Utils.formatDate(new Date().getTime(), "yyyy/MM/dd HH:mm:ss"));
                 vals.put(MessageThread.IS_GROUP_CHAT, 1);
                 vals.put(MessageThread.THREAD_OWNER, thread.getThreadOwner());
-
-                if (!isUpdate) {
+//reza_ak
+               /* if (!isUpdate) {
 
 
                     mContentResolver.insert(UserProvider.CONTENT_URI_GROUP, values);
 
                     if(hashcode.startsWith("ch")) {
-                        vals.put(MessageThread.LAST_MESSAGE, SHAMChatApplication.getInstance().getString(R.string.new_channel_invited));
+                        vals.put(MessageThread.LAST_MESSAGE, "new_channel_invited");
                     } else if(hashcode.startsWith("g")){
-                        vals.put(MessageThread.LAST_MESSAGE, SHAMChatApplication.getInstance().getString(R.string.new_group_invited));
+                        vals.put(MessageThread.LAST_MESSAGE, "new_group_invited");
                     }
                     else {
                         vals.put(MessageThread.LAST_MESSAGE, "");
@@ -2487,7 +2516,7 @@ public class MQTTService extends Service
 
                     mContentResolver.update(UserProvider.CONTENT_URI_GROUP, values, FriendGroup.DB_ID + "=?", new String[] { group.getId() });
                     mContentResolver.update(ChatProviderNew.CONTENT_URI_THREAD, vals, MessageThread.THREAD_ID + "=?", new String[] { thread.getThreadId() });
-                }
+                }*/
                 //
                 // requestAndUpdateParticpants(group,list);
 
@@ -2501,10 +2530,11 @@ public class MQTTService extends Service
                 adminCv.put(FriendGroupMember.DB_GROUP, admin.getGroupID());
                 adminCv.put(FriendGroupMember.DB_FRIEND_IS_ADMIN, 1);
                 adminCv.put(FriendGroupMember.PHONE_NUMBER, admin.getPhoneNumber());
-
+//reza_ak
+                /*
                 if (mContentResolver.update(UserProvider.CONTENT_URI_GROUP_MEMBER, adminCv, FriendGroupMember.DB_GROUP + "=? AND " + FriendGroupMember.DB_FRIEND + "=?", new String[] { admin.getGroupID(), ownerID }) == 0) {
                     mContentResolver.insert(UserProvider.CONTENT_URI_GROUP_MEMBER, adminCv);
-                }
+                }*/
                 //if this is a group we save list of group members
                 if (!isChannel) {
                     if (users.length() > 0) {
@@ -2531,10 +2561,11 @@ public class MQTTService extends Service
                                 groupMember.put(FriendGroupMember.DB_FRIEND_IS_ADMIN, 1);
                             }
                             groupMember.put(FriendGroupMember.DB_FRIEND_DID_JOIN, 1);
-
+//reza_ak
+/*
                             if (mContentResolver.update(UserProvider.CONTENT_URI_GROUP_MEMBER, groupMember, FriendGroupMember.DB_GROUP + "=? AND " + FriendGroupMember.DB_FRIEND + "=?", new String[]{members.getGroupID(), memberId}) == 0) {
                                 mContentResolver.insert(UserProvider.CONTENT_URI_GROUP_MEMBER, groupMember);
-                            }
+                            }*/
 
                         }
 
@@ -2561,7 +2592,7 @@ public class MQTTService extends Service
         private boolean saveOrUpdateThread(String threadId, String receivedJsonMessage, int messageContentType, String friendId, int direction) {
 
 
-            ContentResolver mContentResolver = SHAMChatApplication.getInstance()
+            ContentResolver mContentResolver = getApplicationContext()
                     .getContentResolver();
             // Pars Json String
 
@@ -2598,7 +2629,8 @@ public class MQTTService extends Service
             // End Pars
 
             Cursor threadCursor = null;
-            try {
+            //reza_ak
+           /* try {
                 threadCursor = mContentResolver.query(
                         ChatProviderNew.CONTENT_URI_THREAD,
                         new String[] { MessageThread.THREAD_ID },
@@ -2620,8 +2652,8 @@ public class MQTTService extends Service
                 if (messageContentType != MessageContentType.GROUP_INFO.ordinal()) {
 
                     System.out.println("processMessage addChatMessageToDB saveOrUpdateThread NOT group info");
-
-                    switch (Utils.readMessageContentType(messageType)) {
+//reza_ak
+                  *//*  switch (Utils.readMessageContentType(messageType)) {
                         case TEXT:
                             int limit;
                             if (messageBody.length()>70) limit = 70;
@@ -2632,31 +2664,31 @@ public class MQTTService extends Service
 
                         case IMAGE:
 
-                            lastMessage =  SHAMChatApplication.getInstance().getApplicationContext().getResources().getString(R.string.received_image);
+                            lastMessage = "received_image";
                             break;
 
                         case VIDEO:
-                            lastMessage = SHAMChatApplication.getInstance().getApplicationContext().getResources().getString(R.string.received_video);
+                            lastMessage = "received_video";
                             break;
 
                         case STICKER:
-                            lastMessage = SHAMChatApplication.getInstance().getApplicationContext().getResources().getString(R.string.received_sticker);
+                            lastMessage = "received_sticker";
                             break;
 
 
                         case LOCATION:
-                            lastMessage = SHAMChatApplication.getInstance().getApplicationContext().getResources().getString(R.string.received_location);
+                            lastMessage = "received_location";
                             break;
 
                         case VOICE_RECORD:
-                            lastMessage = SHAMChatApplication.getInstance().getApplicationContext().getResources().getString(R.string.received_voice);
+                            lastMessage = "received_voice";
                             break;
 
                         default:
                             System.out.println("processMessage addChatMessageToDB saveOrUpdateThread DEFAULT"+ lastMessage);
                             break;
 
-                    }
+                    }*//*
 
                 }
 
@@ -2670,7 +2702,7 @@ public class MQTTService extends Service
                     values.put(MessageThread.READ_STATUS, isRead ? 1 : 0);
                     values.put(MessageThread.LAST_UPDATED_DATETIME,Utils.formatDate(new Date().getTime(),"yyyy/MM/dd HH:mm:ss"));
                     values.put(MessageThread.LAST_MESSAGE_DIRECTION, direction);
-                    values.put(MessageThread.THREAD_OWNER, SHAMChatApplication.getConfig().getUserId());
+                    values.put(MessageThread.THREAD_OWNER, userIdPub);
                     values.put(MessageThread.IS_GROUP_CHAT,isGroupChat);
                     mContentResolver.update(ChatProviderNew.CONTENT_URI_THREAD, values, MessageThread.THREAD_ID + "=?", new String[] { threadId });
                 } else {
@@ -2685,8 +2717,7 @@ public class MQTTService extends Service
                     values.put(MessageThread.LAST_MESSAGE_CONTENT_TYPE,messageContentType);
                     values.put(MessageThread.LAST_UPDATED_DATETIME, Utils.formatDate(new Date().getTime(), "yyyy/MM/dd HH:mm:ss"));
                     values.put(MessageThread.IS_GROUP_CHAT, isGroupChat);
-                    values.put(MessageThread.THREAD_OWNER, SHAMChatApplication
-                            .getConfig().getUserId());
+                    values.put(MessageThread.THREAD_OWNER, userIdPub);
                     values.put(MessageThread.LAST_MESSAGE_DIRECTION, direction);
 
                     mContentResolver.insert(ChatProviderNew.CONTENT_URI_THREAD,
@@ -2695,7 +2726,7 @@ public class MQTTService extends Service
 
             } finally {
                 threadCursor.close();
-            }
+            }*/
             return true;
         }
 
@@ -2710,7 +2741,7 @@ public class MQTTService extends Service
             // Conference service
             // g18261_20150618235025@conference.rabtcdn.com/+987735065830
 
-            ContentResolver mContentResolver = SHAMChatApplication.getMyApplicationContext().getContentResolver();
+            ContentResolver mContentResolver = getApplicationContext().getContentResolver();
 
             JSONObject MessageObject = null;
             JSONObject topicObject = null;
@@ -2755,7 +2786,7 @@ public class MQTTService extends Service
             String threadId = null;
 
             roomname = hashcode;
-            threadId = SHAMChatApplication.getConfig().getUserId() + "-" + roomname;
+            threadId = userIdPub + "-" + roomname;
 
             String userId=null;
 
@@ -2781,20 +2812,21 @@ public class MQTTService extends Service
 
                 userId = String.valueOf(newMemberUserId) ;
 
-
-                Cursor cursor = mContentResolver.query(
+////reza_ak
+               /* Cursor cursor = mContentResolver.query(
                         UserProvider.CONTENT_URI_GROUP_MEMBER,
                         new String[] { FriendGroupMember.DB_ID },
                         FriendGroupMember.DB_FRIEND + "=? AND "
                                 + FriendGroupMember.DB_GROUP + "=?"
-                        , new String[] { userId, roomname}, null);
+                        , new String[] { userId, roomname}, null);*/
 
                 //if invited user doesn't exists previously then insert it to database
-                if (cursor.getCount() == 0) {
+                //reza_ak
+              /*  if (cursor.getCount() == 0) {
 
                     //insert new users to list of group members
                     FriendGroupMember newUser = new FriendGroupMember(roomname, userId);
-                    newUser.assignUniqueId(SHAMChatApplication.getConfig().getUserId());
+                    newUser.assignUniqueId(userIdPub);
 
                     ContentValues vals = new ContentValues();
                     vals.put(FriendGroupMember.DB_ID, newUser.getId());
@@ -2804,7 +2836,9 @@ public class MQTTService extends Service
                     vals.put(FriendGroupMember.DB_FRIEND_DID_JOIN, "1");
 
                     //first try to update and if not exists then insert new record to friend group members table
-                    if (mContentResolver.update(
+
+                    //reza_ak
+                    *//*   if (mContentResolver.update(
                             UserProvider.CONTENT_URI_GROUP_MEMBER, vals,
                             FriendGroupMember.DB_GROUP + "=? AND "
                                     + FriendGroupMember.DB_FRIEND + "=?",
@@ -2812,12 +2846,11 @@ public class MQTTService extends Service
                         mContentResolver
                                 .insert(UserProvider.CONTENT_URI_GROUP_MEMBER,
                                         vals);
-                    }
+                    }*//*
 
 
                     //mast - username is phone number of new user
-                    String message = getContactNameFromPhone(SHAMChatApplication.getMyApplicationContext(),newMemberPhone) + " " + SHAMChatApplication.getInstance().getApplicationContext().getResources()
-                            .getString(R.string.has_joined_the_room);
+                    String message = "has_joined_the_room";
 
                     //update the chat thread
                     ContentValues values = new ContentValues();
@@ -2831,17 +2864,17 @@ public class MQTTService extends Service
                     values.put(MessageThread.LAST_MESSAGE_DIRECTION,
                             MyMessageType.INCOMING_MSG.ordinal());
 
-
-                    mContentResolver.update(
+//reza_ak
+                  *//*  mContentResolver.update(
                             ChatProviderNew.CONTENT_URI_THREAD, values,
                             MessageThread.THREAD_ID + "=?",
-                            new String[] { threadId });
+                            new String[] { threadId });*//*
 
                     ContentValues chatmessageVals = new ContentValues();
 
                     //add the group info message that user x was invited to room
                     chatmessageVals.put(ChatMessage.MESSAGE_RECIPIENT,
-                            SHAMChatApplication.getConfig().getUserId());
+                            userIdPub);
                     chatmessageVals.put(ChatMessage.MESSAGE_TYPE,
                             MyMessageType.INCOMING_MSG.ordinal());
                     chatmessageVals.put(ChatMessage.PACKET_ID,packetId);
@@ -2851,7 +2884,7 @@ public class MQTTService extends Service
                     chatmessageVals.put(ChatMessage.MESSAGE_CONTENT_TYPE,
                             MessageContentType.GROUP_INFO.ordinal());
                     chatmessageVals.put(ChatMessage.MESSAGE_STATUS,
-                            MessageStatusType.SEEN.ordinal());
+                            ChatMessage.MessageStatusType.SEEN.ordinal());
                     chatmessageVals.put(ChatMessage.FILE_SIZE, 0);
 
                     chatmessageVals.put(ChatMessage.GROUP_ID, roomname);
@@ -2865,8 +2898,8 @@ public class MQTTService extends Service
 
 
 
-
-                    if (mContentResolver.update(
+//reza_ak
+                   *//* if (mContentResolver.update(
                             ChatProviderNew.CONTENT_URI_CHAT,
                             chatmessageVals, ChatMessage.PACKET_ID + "=?",
                             new String[] { packetId }) == 0) {
@@ -2874,7 +2907,7 @@ public class MQTTService extends Service
                                 ChatProviderNew.CONTENT_URI_CHAT,
                                 chatmessageVals);
 
-                    }
+                    }*//*
 
                 }
                 //if user already was invited and exists in database
@@ -2882,7 +2915,7 @@ public class MQTTService extends Service
                     //what to do ? nothing is not required
                 }
 
-                cursor.close();
+                cursor.close();*/
             }
 
 
@@ -2931,7 +2964,7 @@ public class MQTTService extends Service
 
         private boolean addLeftRoomToGroup (String jsonMessageString){
 
-            ContentResolver mContentResolver = SHAMChatApplication.getMyApplicationContext().getContentResolver();
+            ContentResolver mContentResolver = getApplicationContext().getContentResolver();
 
             JSONObject MessageObject = null;
             JSONObject topicObject = null;
@@ -2953,6 +2986,7 @@ public class MQTTService extends Service
                 leftMemberUserId = actorObject.getInt("user_id");
 
                 //Mast - TODO - the packetId should come from python script
+
                 packetId = Utils.makePacketId(String.valueOf(leftMemberUserId));
                 MessageObject.put("packet_id", packetId);
                 jsonMessageString = MessageObject.toString();
@@ -2965,18 +2999,22 @@ public class MQTTService extends Service
             String groupId = hashcode;
             String userId = String.valueOf(leftMemberUserId);
 
-            String threadId = SHAMChatApplication.getConfig().getUserId() + "-" + groupId;
+            String threadId = userIdPub + "-" + groupId;
 
             //delete user from table of friend group members
-            mContentResolver.delete(UserProvider.CONTENT_URI_GROUP_MEMBER, FriendGroupMember.DB_GROUP + "=? AND "+ FriendGroupMember.DB_FRIEND + "=?", new String[] {groupId, userId });
+            //reza_ak
+            //mContentResolver.delete(UserProvider.CONTENT_URI_GROUP_MEMBER, FriendGroupMember.DB_GROUP + "=? AND "+ FriendGroupMember.DB_FRIEND + "=?", new String[] {groupId, userId });
             String displayMessage="";
             if(!groupId.substring(0,2).equals("ch")) {
-                displayMessage = getContactNameFromPhone(SHAMChatApplication.getMyApplicationContext(), leftMemberPhone) + " " + SHAMChatApplication.getInstance().getApplicationContext().getResources().getString(R.string.left_the_chat);
+                displayMessage = getContactNameFromPhone(getApplicationContext(), leftMemberPhone) + " " +"left_the_chat";
 
                 //update the chat thread table to show message user x left the room
                 ContentValues cvs = new ContentValues();
                 cvs.put(MessageThread.LAST_MESSAGE, displayMessage);
-                mContentResolver.update(ChatProviderNew.CONTENT_URI_THREAD, cvs, MessageThread.THREAD_ID + "=?", new String[]{threadId});
+
+                //reza_ak
+                /*    mContentResolver.update(ChatProviderNew.CONTENT_URI_THREAD, cvs, MessageThread.THREAD_ID + "=?", new String[]{threadId});
+            */
             }
             Log.w("leftuserid", String.valueOf(leftMemberUserId));
             Log.w("currentuserid", CURRENT_USER_ID);
@@ -2985,7 +3023,7 @@ public class MQTTService extends Service
             if(String.valueOf(leftMemberUserId).equals(CURRENT_USER_ID)){
 
                 //Mast - unsubscribe from the group we left
-                RokhPref Session			= new RokhPref(SHAMChatApplication.getInstance().getApplicationContext());
+                RokhPref Session			= new RokhPref(getApplicationContext());
                 clientHandle	= Session.getClientHandle();
 
                 String topic = null;
@@ -2999,7 +3037,7 @@ public class MQTTService extends Service
 
                 try {
 
-                    mqttClient.unsubscribe(topic, SHAMChatApplication.getInstance().getApplicationContext(), null);
+                    mqttClient.unsubscribe(topic, getApplicationContext(), null);
                 }
                 catch (MqttSecurityException e) {
                     Log.e(this.getClass().getCanonicalName(), "Failed to unsubscribe to" + topic + " the client with the handle " + clientHandle, e);
@@ -3007,8 +3045,9 @@ public class MQTTService extends Service
                 catch (MqttException e) {
                     Log.e(this.getClass().getCanonicalName(), "Failed to unsubscribe to" + topic + " the client with the handle " + clientHandle, e);
                 }
-
-                mContentResolver.delete(ChatProviderNew.CONTENT_URI_THREAD, MessageThread.THREAD_ID + "=?", new String[] { threadId });
+//reza_ak
+         /*       mContentResolver.delete(ChatProviderNew.CONTENT_URI_THREAD, MessageThread.THREAD_ID + "=?", new String[] { threadId });
+         */
             }
 
 
@@ -3017,7 +3056,7 @@ public class MQTTService extends Service
                 ContentValues chatmessageVals = new ContentValues();
                 //add the group info message that user x left the room to chat messages inside group screen
                 chatmessageVals.put(ChatMessage.MESSAGE_RECIPIENT,
-                        SHAMChatApplication.getConfig().getUserId());
+                        userIdPub);
                 chatmessageVals.put(ChatMessage.MESSAGE_TYPE,
                         MyMessageType.INCOMING_MSG.ordinal());
                 chatmessageVals.put(ChatMessage.PACKET_ID, packetId);
@@ -3027,7 +3066,7 @@ public class MQTTService extends Service
                 chatmessageVals.put(ChatMessage.MESSAGE_CONTENT_TYPE,
                         MessageContentType.GROUP_INFO.ordinal());
                 chatmessageVals.put(ChatMessage.MESSAGE_STATUS,
-                        MessageStatusType.SEEN.ordinal());
+                        ChatMessage.MessageStatusType.SEEN.ordinal());
                 chatmessageVals.put(ChatMessage.FILE_SIZE, 0);
 
                 chatmessageVals.put(ChatMessage.GROUP_ID, groupId);
@@ -3035,15 +3074,15 @@ public class MQTTService extends Service
                 chatmessageVals.put(ChatMessage.MESSAGE_SENDER,
                         groupId);
                 chatmessageVals.put(ChatMessage.TEXT_MESSAGE, displayMessage);
-
-                if (mContentResolver.update(
+//reza_ak
+              /*  if (mContentResolver.update(
                         ChatProviderNew.CONTENT_URI_CHAT,
                         chatmessageVals, ChatMessage.PACKET_ID + "=?",
                         new String[]{packetId}) == 0) {
                     mContentResolver.insert(
                             ChatProviderNew.CONTENT_URI_CHAT,
                             chatmessageVals);
-                }
+                }*/
 
 
                 //send newMessage event so Chat thread fragment and also chatInitialorGroupActivity update the UI
@@ -3105,7 +3144,7 @@ public class MQTTService extends Service
                     kickedMemberUserId = targetObject.getInt("user_id");
                 }
 
-                String threadId = SHAMChatApplication.getConfig().getUserId() + "-" + groupId;
+                String threadId = userIdPub+ "-" + groupId;
 
                 isChannel = hashcode.indexOf("ch") != -1;
                 if (isChannel) {
@@ -3113,35 +3152,33 @@ public class MQTTService extends Service
                     //if we ourself were kicked from room
                     // delete the chat thread and unsubscribe from group
                     if(String.valueOf(kickedMemberUserId).equals(CURRENT_USER_ID) || kickAll) {
-
-                        SHAMChatApplication
-                                .getMyApplicationContext()
+//reza_ak
+                    /*  getApplicationContext()
                                 .getContentResolver()
                                 .delete(ChatProviderNew.CONTENT_URI_CHAT,
                                         ChatMessage.THREAD_ID + "=?",
                                         new String[]{threadId});
 
-                        SHAMChatApplication
-                                .getMyApplicationContext()
+                     getApplicationContext()
                                 .getContentResolver()
                                 .delete(ChatProviderNew.CONTENT_URI_THREAD,
                                         MessageThread.THREAD_ID + "=?",
-                                        new String[]{threadId});
+                                        new String[]{threadId});*/
 
+/*reza_ak
 
-                        SHAMChatApplication
-                                .getMyApplicationContext()
+                        getApplicationContext()
                                 .getContentResolver()
                                 .delete(UserProvider.CONTENT_URI_GROUP,
                                         "did_join_room=? OR friend_group_id=?",
                                         new String[]{groupId, groupId});
 
-                        SHAMChatApplication
-                                .getMyApplicationContext()
+                      getApplicationContext()
                                 .getContentResolver()
                                 .delete(UserProvider.CONTENT_URI_GROUP_MEMBER,
                                         "friend_group_id=? OR friend_id=?",
                                         new String[]{groupId, groupId});
+*/
 
 
                         String topic = null;
@@ -3155,7 +3192,7 @@ public class MQTTService extends Service
 
 
                         try {
-                            mqttClient.unsubscribe(topic, SHAMChatApplication.getInstance().getApplicationContext(), null);
+                            mqttClient.unsubscribe(topic, getApplicationContext(), null);
 
 
                         } catch (MqttSecurityException e) {
@@ -3186,7 +3223,7 @@ public class MQTTService extends Service
             //update UI of group members listview
             //smackableImp --> line 2988
 
-            ContentResolver mContentResolver = SHAMChatApplication.getMyApplicationContext().getContentResolver();
+            ContentResolver mContentResolver = getApplicationContext().getContentResolver();
 
             JSONObject MessageObject = null;
             JSONObject topicObject = null;
@@ -3226,26 +3263,29 @@ public class MQTTService extends Service
             String groupId = hashcode;
             String userId = String.valueOf(kickedMemberUserId);
 
-            String threadId = SHAMChatApplication.getConfig().getUserId() + "-" + groupId;
+            String threadId = userIdPub + "-" + groupId;
 
             //delete user from table of friend group members
+            /*reza_ak
             mContentResolver.delete(UserProvider.CONTENT_URI_GROUP_MEMBER, FriendGroupMember.DB_GROUP + "=? AND "+ FriendGroupMember.DB_FRIEND + "=?", new String[] {groupId, userId });
 
-
-            String displayMessage = getContactNameFromPhone(SHAMChatApplication.getMyApplicationContext(),kickedMemberPhone) + " "+SHAMChatApplication.getInstance().getApplicationContext().getResources().getString(R.string.kicked_from_chat);
+*/
+            String displayMessage = getContactNameFromPhone(getApplicationContext(),kickedMemberPhone) + " "+"kicked_from_chat";
 
             //update the chat thread table to show message user x left the room
             ContentValues cvs = new ContentValues();
             cvs.put(MessageThread.LAST_MESSAGE, displayMessage);
-            mContentResolver.update(ChatProviderNew.CONTENT_URI_THREAD, cvs, MessageThread.THREAD_ID + "=?", new String[] { threadId });
 
+  //reza_ak
+          /*  mContentResolver.update(ChatProviderNew.CONTENT_URI_THREAD, cvs, MessageThread.THREAD_ID + "=?", new String[] { threadId });
+*/
 
             //if we ourself left the room  delete the chat thread and unsubscribe from group
             if(String.valueOf(kickedMemberUserId).equals(CURRENT_USER_ID)){
 
-                displayMessage = context.getString(R.string.you_were_kicked_from_room);
+                displayMessage = "you_were_kicked_from_room";
                 //Mast - unsubscribe from the group we are kicked from
-                RokhPref Session			= new RokhPref(SHAMChatApplication.getInstance().getApplicationContext());
+                RokhPref Session			= new RokhPref(getApplicationContext());
                 clientHandle	= Session.getClientHandle();
                 String topic = null;
 
@@ -3259,7 +3299,7 @@ public class MQTTService extends Service
 
 
                 try {
-                    mqttClient.unsubscribe(topic, SHAMChatApplication.getInstance().getApplicationContext(), null);
+                    mqttClient.unsubscribe(topic, getApplicationContext(), null);
 
 
                 }
@@ -3270,15 +3310,16 @@ public class MQTTService extends Service
                     Log.e(this.getClass().getCanonicalName(), "Failed to unsubscribe to" + topic + " the client with the handle " + clientHandle, e);
                 }
 
-                mContentResolver.delete(ChatProviderNew.CONTENT_URI_THREAD, MessageThread.THREAD_ID + "=?", new String[] { threadId });
-
+  //reza_ak
+                /*mContentResolver.delete(ChatProviderNew.CONTENT_URI_THREAD, MessageThread.THREAD_ID + "=?", new String[] { threadId });
+*/
 
             }
 
             ContentValues chatmessageVals = new ContentValues();
             //add the group info message that user x left the room to chat messages inside group screen
             chatmessageVals.put(ChatMessage.MESSAGE_RECIPIENT,
-                    SHAMChatApplication.getConfig().getUserId());
+                    userIdPub);
             chatmessageVals.put(ChatMessage.MESSAGE_TYPE,
                     MyMessageType.INCOMING_MSG.ordinal());
             chatmessageVals.put(ChatMessage.PACKET_ID,packetId);
@@ -3288,7 +3329,7 @@ public class MQTTService extends Service
             chatmessageVals.put(ChatMessage.MESSAGE_CONTENT_TYPE,
                     MessageContentType.GROUP_INFO.ordinal());
             chatmessageVals.put(ChatMessage.MESSAGE_STATUS,
-                    MessageStatusType.SEEN.ordinal());
+                    ChatMessage.MessageStatusType.SEEN.ordinal());
             chatmessageVals.put(ChatMessage.FILE_SIZE, 0);
 
             chatmessageVals.put(ChatMessage.GROUP_ID, groupId);
@@ -3296,15 +3337,15 @@ public class MQTTService extends Service
             chatmessageVals.put(ChatMessage.MESSAGE_SENDER,
                     groupId);
             chatmessageVals.put(ChatMessage.TEXT_MESSAGE, displayMessage);
-
-            if (mContentResolver.update(
+//reza_ak
+          /*  if (mContentResolver.update(
                     ChatProviderNew.CONTENT_URI_CHAT,
                     chatmessageVals, ChatMessage.PACKET_ID + "=?",
                     new String[] { packetId }) == 0) {
                 mContentResolver.insert(
                         ChatProviderNew.CONTENT_URI_CHAT,
                         chatmessageVals);
-            }
+            }*/
 
             //send newMessage event so Chat thread fragment and also chatInitialorGroupActivity update the UI
             //send a new message event so the ChatThreadFragment updates itself
@@ -3327,15 +3368,16 @@ public class MQTTService extends Service
 
             if (isChannel) {
 
-                SHAMChatApplication
-                        .getMyApplicationContext()
+                //reza_ak
+                /*
+
+                getApplicationContext()
                         .getContentResolver()
                         .delete(ChatProviderNew.CONTENT_URI_CHAT,
                                 ChatMessage.THREAD_ID + "=?",
                                 new String[]{threadId});
 
-                SHAMChatApplication
-                        .getMyApplicationContext()
+                getApplicationContext()
                         .getContentResolver()
                         .delete(ChatProviderNew.CONTENT_URI_THREAD,
                                 MessageThread.THREAD_ID + "=?",
@@ -3343,20 +3385,18 @@ public class MQTTService extends Service
 
 
 
-                SHAMChatApplication
-                        .getMyApplicationContext()
+                getApplicationContext()
                         .getContentResolver()
                         .delete(UserProvider.CONTENT_URI_GROUP,
                                 "did_join_room=? OR friend_group_id=?",
                                 new String[]{groupId, groupId});
 
-                SHAMChatApplication
-                        .getMyApplicationContext()
+                getApplicationContext()
                         .getContentResolver()
                         .delete(UserProvider.CONTENT_URI_GROUP_MEMBER,
                                 "friend_group_id=? OR friend_id=?",
                                 new String[]{groupId,groupId});
-
+*/
 
                 EventBus.getDefault().postSticky(new NewMessageEvent());
                 EventBus.getDefault().postSticky(new CloseGroupActivityEvent(threadId, groupId));
@@ -3384,7 +3424,7 @@ public class MQTTService extends Service
                 }
 
                 try {
-                    mqttClient.unsubscribe(topic, SHAMChatApplication.getInstance().getApplicationContext(), null);
+                    mqttClient.unsubscribe(topic, getApplicationContext(), null);
 
 
                 } catch (MqttSecurityException e) {

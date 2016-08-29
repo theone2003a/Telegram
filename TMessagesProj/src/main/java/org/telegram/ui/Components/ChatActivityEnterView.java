@@ -1311,6 +1311,7 @@ public class ChatActivityEnterView extends FrameLayoutFixed implements Notificat
             for (int a = 0; a < count; a++) {
                 String mess = text.substring(a * 4096, Math.min((a + 1) * 4096, text.length()));
                 SendMessagesHelper.getInstance().sendMessage(mess, dialog_id, replyingMessageObject, messageWebPage, messageWebPageSearch, asAdmin(), null, null);
+
             }
             return true;
         }

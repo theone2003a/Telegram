@@ -6,3 +6,7 @@
 -dontwarn com.google.android.gms.**
 -dontwarn com.google.common.cache.**
 -dontwarn com.google.common.primitives.**
+
+-keep class org.eclipse.paho.android.** { *; }
+-keep class org.eclipse.paho.client.** { *; }
+-keep class org.eclipse.paho.** { *; }
