@@ -151,7 +151,7 @@ public class PublishToTopicJob extends Job {
 
 		RokhPref Session;
 		String clientHandle = null;
-//reza_ak
+		//reza_ak
 		//Session = new RokhPref(SHAMChatApplication.getInstance().getApplicationContext());
 		clientHandle = "user6";
 
@@ -184,7 +184,7 @@ public class PublishToTopicJob extends Job {
 
 		}
 */
-		MqttAndroidClient client = Connections.getInstance(ApplicationLoader.applicationContext).getConnection(clientHandle).getClient();
+		MqttAndroidClient client = Connections.getInstance(ApplicationLoader.getInstance().getApplicationContext()).getConnection(clientHandle).getClient();
 		
 		client.publish(topicName, jsonMessageString.getBytes(), qos, retained, null, new IMqttActionListener() {
 
@@ -238,9 +238,9 @@ public class PublishToTopicJob extends Job {
 				//mast - this is too much just for testing
 			    /*if (isOnline())
 			    {
-					Intent backgroundService = new Intent(ApplicationLoader.applicationContext, MQTTService.class);
-					ApplicationLoader.applicationContext.stopService(backgroundService);
-					ApplicationLoader.applicationContext.startService(backgroundService);
+					Intent backgroundService = new Intent(ApplicationLoader.getInstance(), MQTTService.class);
+					ApplicationLoader.getInstance().stopService(backgroundService);
+					ApplicationLoader.getInstance().startService(backgroundService);
 			    }*/
 
 			}
@@ -252,7 +252,7 @@ public class PublishToTopicJob extends Job {
 
 	private boolean isOnline()
 	{
-		ConnectivityManager cm = (ConnectivityManager)ApplicationLoader.applicationContext.getSystemService(ApplicationLoader.applicationContext.CONNECTIVITY_SERVICE);
+		ConnectivityManager cm = (ConnectivityManager)ApplicationLoader.getInstance().getSystemService(ApplicationLoader.applicationContext.CONNECTIVITY_SERVICE);
 		if(cm.getActiveNetworkInfo() != null &&
 				cm.getActiveNetworkInfo().isAvailable() &&
 				cm.getActiveNetworkInfo().isConnected())
@@ -279,7 +279,7 @@ public class PublishToTopicJob extends Job {
 
 		boolean isExistingMessage = false;
 
-		ContentResolver mContentResolver = ApplicationLoader.applicationContext.getContentResolver();
+		ContentResolver mContentResolver = ApplicationLoader.getInstance().getContentResolver();
 
 		//mast - sample message to handle sent message and insert to db
 		//String jsonSampleMsg = "{\"to\": \"/groups/testgroup\",\"from\": \"wizgoonId\",\"messageBody\": \"hello everyone!\",\"messageType\": 1,\"timestamp\": \"2014-03-07T00:00:00.000Z\",\"groupAlias\": \"Good friends group\"\"packetId\": \"userId_timestamp\"}";
@@ -546,7 +546,7 @@ public class PublishToTopicJob extends Job {
 
 		System.out.println("processMessage addChatMessageToDB saveOrUpdateThread");
 
-		ContentResolver mContentResolver = ApplicationLoader.applicationContext.getContentResolver();
+		ContentResolver mContentResolver = ApplicationLoader.getInstance().getContentResolver();
 
 		// Pars Json String
 
@@ -705,7 +705,7 @@ public class PublishToTopicJob extends Job {
 
 	private void updateMessageStatus(final String packetId, ChatMessage.MessageStatusType messageStatusType ) {
 
-		ContentResolver mContentResolver = ApplicationLoader.applicationContext.getContentResolver();
+		ContentResolver mContentResolver = ApplicationLoader.getInstance().getContentResolver();
 //reza_ak
 	/*	Cursor cursor = null;
 		try {

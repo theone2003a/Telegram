@@ -64,20 +64,20 @@ public class SubscribeToEventsJob extends Job {
 			return;
 		}
 			
-		MqttAndroidClient mqttClient;		
-		RokhPref Session = new RokhPref(ApplicationLoader.applicationContext.getApplicationContext());
-		final String clientHandle = Session.getClientHandle();
+		MqttAndroidClient mqttClient;
+		//reza_ak
+		//RokhPref Session = new RokhPref(ApplicationLoader.getInstance().getApplicationContext());
+		final String clientHandle = "user6";
 		//reza_ak
 		String userId	= "6";
 		//phoneNumber = phoneNumber.startsWith("+") ? phoneNumber.substring(1) : phoneNumber;
 		String topic = "events/"+userId;
-		final Context context = ApplicationLoader.applicationContext.getApplicationContext();
+		final Context context = ApplicationLoader.getInstance().getApplicationContext();
 		
 		topics = new String[1];
 	    topics[0] = topic;
 	     
-		mqttClient = Connections.getInstance(
-				ApplicationLoader.applicationContext.getApplicationContext()).getConnection(clientHandle).getClient();
+		mqttClient = Connections.getInstance(ApplicationLoader.getInstance().getApplicationContext()).getConnection(clientHandle).getClient();
 		mqttClient.subscribe(topic, 1, null,   new IMqttActionListener() {
 			
 			@Override
@@ -118,7 +118,7 @@ public class SubscribeToEventsJob extends Job {
 		// An error occurred in onRun.
 		// Return value determines whether this job should retry running (true)
 		// or abort (false).
-		System.out.println("********subscribe to events topic failed - retry******8");
+		System.out.println("********subscribe to events topic failed - retry******");
 	
 		return true;
 	}
