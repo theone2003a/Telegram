@@ -5228,6 +5228,9 @@ public class MessagesController implements NotificationCenter.NotificationCenter
             if (missingData) {
                 needGetDiff = true;
             } else {
+
+                //reza_ak
+                updates.pts=MessagesStorage.lastPtsValue + updates.pts_count;
                 if (MessagesStorage.lastPtsValue + updates.pts_count == updates.pts) {
                     TLRPC.TL_message message = new TLRPC.TL_message();
                     message.id = updates.id;

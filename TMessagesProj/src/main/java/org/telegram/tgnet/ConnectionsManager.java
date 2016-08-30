@@ -271,6 +271,7 @@ public class ConnectionsManager {
                 Utilities.stageQueue.postRunnable(new Runnable() {
                     @Override
                     public void run() {
+
                         MessagesController.getInstance().processUpdates((TLRPC.Updates) message, false);
                     }
                 });

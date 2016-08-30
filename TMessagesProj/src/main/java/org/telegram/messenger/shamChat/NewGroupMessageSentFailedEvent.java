@@ -46,7 +46,7 @@ public class NewGroupMessageSentFailedEvent {
 			//groupOwnerId = SampleMsg.getString("groupOwnerId");					
 			isGroupChat = SampleMsg.getInt("isGroupChat");					
 			//reza_ak
-			String threadOwner = "6000000";
+			String threadOwner = "102015";
 			threadId = threadOwner + "-" + to; 
 				
 			} catch (JSONException e1) {

@@ -1274,9 +1274,9 @@ public class SendMessagesHelper implements NotificationCenter.NotificationCenter
 
                         try {
                             jsonMessageObject.put("packet_type", "message");
-                            jsonMessageObject.put("to", "98729");
+                            jsonMessageObject.put("to", "18271");
                             jsonMessageObject.put("from", "+989122335645");
-                            jsonMessageObject.put("from_userid","6000000");
+                            jsonMessageObject.put("from_userid","102015");
                             jsonMessageObject.put("messageBody", newMsg.message);
                             jsonMessageObject.put("messageType", MessageContentTypeProvider.MessageContentType.TEXT.ordinal());
                             jsonMessageObject.put("messageTypeDesc", "");
@@ -1290,14 +1290,14 @@ public class SendMessagesHelper implements NotificationCenter.NotificationCenter
                             //jsonMessageObject.put("groupOwnerId",groupOwnerId);
                             jsonMessageObject.put("isGroupChat", 1);
                             jsonMessageObject.put("channel_view", "1");
-                            packetId = Utils.makePacketId("6000000");
+                            packetId = Utils.makePacketId("102015");
                             jsonMessageObject.put("packetId", packetId);
 
                         } catch (Exception e) {
                             // TODO Auto-generated catch block
                             e.printStackTrace();
                         }
-                        jobManager.addJobInBackground(new PublishToTopicJob(jsonMessageObject.toString(), "groups/" + "s6:98729"));
+                        jobManager.addJobInBackground(new PublishToTopicJob(jsonMessageObject.toString(), "groups/" + "s18271:102015"));
                     }
                 } else {
                     TLRPC.TL_decryptedMessage reqSend;

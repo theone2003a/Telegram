@@ -29,7 +29,9 @@ import android.util.Log;
 import android.widget.Toast;
 
 import org.telegram.messenger.ApplicationLoader;
+import org.telegram.messenger.MessagesController;
 import org.telegram.messenger.R;
+import org.telegram.messenger.Utilities;
 import org.telegram.messenger.mqtt.Connection.ConnectionStatus;
 import com.path.android.jobqueue.JobManager;
 
@@ -70,6 +72,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.telegram.messenger.shamChat.User;
 import org.telegram.messenger.shamChat.Utils;
+import org.telegram.tgnet.TLObject;
+import org.telegram.tgnet.TLRPC;
 
 
 import java.beans.PropertyChangeEvent;
@@ -107,13 +111,15 @@ public class MQTTService extends Service
     // constants used to tell the Activity UI the connection status
     public static final String MQTT_STATUS_INTENT = "com.rokhgroup.mqtt.STATUS";
     public static final String MQTT_STATUS_MSG    = "com.rokhgroup.mqtt.STATUS_MSG";
-    String userIdPub="6000000";
+    String userIdPub="102015";
     // constant used internally to schedule the next ping event
     public static final String MQTT_PING_ACTION = "com.rokhgroup.mqtt.PING";
 
     // constants used by status bar notifications
     public static final int MQTT_NOTIFICATION_ONGOING = 1;
     public static final int MQTT_NOTIFICATION_UPDATE  = 2;
+
+    public TLRPC.TL_updateShortMessage messageTelegram;
 
     private Thread.UncaughtExceptionHandler androidDefaultUEH;
     private Thread.UncaughtExceptionHandler handler = new Thread.UncaughtExceptionHandler() {
@@ -295,7 +301,7 @@ public class MQTTService extends Service
 
         brokerHostName = Constant.MqttTcpHost;
         //reza_ak
-        mqttClientId ="6000000";
+        mqttClientId ="102015";
                 //SHAMChatApplication.getConfig().getUserId();
         brokerPortNumber = Integer.valueOf(Constant.MqttTcpPort);
 
@@ -1227,7 +1233,7 @@ public class MQTTService extends Service
 
                 if (DEBUG) notifyUser2("ping to server");
                 //reza_ak
-                String userId	= "6000000";
+                String userId	= "102015";
                         //SHAMChatApplication.getConfig().getUserId();
                 String topic = "events/"+userId;
                 String pingMessage = "ping";
@@ -1625,7 +1631,7 @@ public class MQTTService extends Service
             this.context = context;
             this.clientHandle = clientHandle;
             //reza_ak
-            CURRENT_USER_ID	= "6000000";
+            CURRENT_USER_ID	= "102015";
                     //SHAMChatApplication.getConfig().getUserId();
         }
 
@@ -1746,6 +1752,7 @@ public class MQTTService extends Service
         /**
          * @see org.eclipse.paho.client.mqttv3.MqttCallback#messageArrived(java.lang.String, org.eclipse.paho.client.mqttv3.MqttMessage)
          */
+
         @Override
         public void messageArrived(String topic, MqttMessage message) throws Exception {
 
@@ -1886,6 +1893,109 @@ public class MQTTService extends Service
                 }else { //if this is a group message
 
                     if (packetType.equals("message")){
+
+                        String threadId = null;
+
+                        JSONObject SampleMsg = null;
+                        String packetId = null;
+                        String from = null;
+                        int fromUserId = 0;
+                        String to=null;
+                        String messageTypeDesc = null;
+                        int messageType = 0;
+                        String messageBody = null;
+                        String timestamp = null;
+                        //String groupOwnerId = null;
+                        int isGroupChat = 0;
+                        String latitude = null;
+                        String longitude = null;
+
+                        Boolean isChannel = false;
+                        Boolean singleChat = false;
+
+                        try {
+                            SampleMsg = new JSONObject(jsonMessageString);
+                            packetId = SampleMsg.getString("packetId");
+                            from = SampleMsg.getString("from");
+                            fromUserId = SampleMsg.getInt("from_userid");
+                            to = SampleMsg.getString("to");
+                            messageTypeDesc = SampleMsg.getString("messageTypeDesc");
+                            timestamp = SampleMsg.getString("timestamp");
+                            messageType = SampleMsg.getInt("messageType");
+                            messageBody = SampleMsg.getString("messageBody");
+                            //groupOwnerId = SampleMsg.getString("groupOwnerId");
+                            isGroupChat = SampleMsg.getInt("isGroupChat");
+
+                            if (SampleMsg.has("latitude"))
+                                latitude = SampleMsg.getString("latitude");
+
+                            if (SampleMsg.has("longitude"))
+                                latitude = SampleMsg.getString("longitude");
+
+
+
+                        } catch (JSONException e1) {
+                            // TODO Auto-generated catch block
+                            e1.printStackTrace();
+                        }
+
+
+
+
+
+try {
+    messageTelegram = new TLRPC.TL_updateShortMessage();
+
+    messageTelegram.chat_id = 0;
+    //messageTelegram.date = (int)Utils.DateToTimeStamp( timestamp);
+    messageTelegram.date = 1472564180;
+    messageTelegram.flags = 1;
+    messageTelegram.from_id = 0;
+    messageTelegram.id = 37;
+    messageTelegram.message = messageBody;
+    messageTelegram.out = false;
+    messageTelegram.user_id = 107359676;
+    messageTelegram.unread = false;
+    messageTelegram.out = false;
+    messageTelegram.mentioned = false;
+    messageTelegram.media_unread = false;
+    messageTelegram.silent = false;
+    //messageTelegram.id = stream.readInt32(exception);
+    messageTelegram.pts = 49;
+    messageTelegram.pts_count = 1;
+    messageTelegram.fwd_from = null;
+    messageTelegram.via_bot_id = 0;
+    messageTelegram.reply_to_msg_id = 0;
+
+                     /*   if ((flags & 128) != 0) {
+                            int magic = stream.readInt32(exception);
+                            if (magic != 0x1cb5c415) {
+                                if (exception) {
+                                    throw new RuntimeException(String.format("wrong Vector magic, got %x", magic));
+                                }
+                                return;
+                            }
+                            int count = stream.readInt32(exception);
+                            for (int a = 0; a < count; a++) {
+                                MessageEntity object = MessageEntity.TLdeserialize(stream, stream.readInt32(exception), exception);
+                                if (object == null) {
+                                    return;
+                                }
+                                entities.add(object);
+                            }
+                        }*/
+} catch (Exception e) {
+    e.printStackTrace();
+}
+
+
+                        Utilities.stageQueue.postRunnable(new Runnable() {
+                            @Override
+                            public void run() {
+
+                                MessagesController.getInstance().processUpdates((TLRPC.Updates) messageTelegram, false);
+                            }
+                        });
 //reza_ak
                         //if it is my own packet just ignore it
                         /*
@@ -2046,7 +2156,7 @@ public class MQTTService extends Service
 
             String groupId = to;
 //reza_ak
-            String threadOwner = "6000000";
+            String threadOwner = "102015";
                     //SHAMChatApplication.getConfig().getUserId();
 
             //String threadId = threadId;
@@ -2334,7 +2444,7 @@ public class MQTTService extends Service
             me = UserProvider.userFromCursor(cursor);
             cursor.close();*/
 
-            String clientId = "6000000";
+            String clientId = "102015";
 
             String[] actionArgs = new String[1];
 

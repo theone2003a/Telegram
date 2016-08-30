@@ -67,9 +67,9 @@ public class SubscribeToEventsJob extends Job {
 		MqttAndroidClient mqttClient;
 		//reza_ak
 		//RokhPref Session = new RokhPref(ApplicationLoader.getInstance().getApplicationContext());
-		final String clientHandle = "user6000000";
+		final String clientHandle = "user102015";
 		//reza_ak
-		String userId	= "6000000";
+		String userId	= "102015";
 		//phoneNumber = phoneNumber.startsWith("+") ? phoneNumber.substring(1) : phoneNumber;
 		String topic = "events/"+userId;
 		final Context context = ApplicationLoader.getInstance().getApplicationContext();

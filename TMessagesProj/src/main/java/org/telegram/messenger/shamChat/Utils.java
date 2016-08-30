@@ -49,6 +49,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -893,6 +894,18 @@ public class Utils {
 
 				return packetType;
 		  }
+
+			public static long DateToTimeStamp(String datetime) {
+				try {
+					String str_date = datetime;
+					DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd kk:mm");
+					Date date = (Date) formatter.parse(str_date);
+					return date.getTime();
+				} catch (Exception e) {
+					return 0;
+				}
+
+			}
 /*
 		  *//**
 		   * Detects packet type based on json string received
