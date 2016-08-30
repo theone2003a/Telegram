@@ -1951,7 +1951,7 @@ try {
     messageTelegram.date = 1472564180;
     messageTelegram.flags = 1;
     messageTelegram.from_id = 0;
-    messageTelegram.id = 37;
+    messageTelegram.id = 1472564180;
     messageTelegram.message = messageBody;
     messageTelegram.out = false;
     messageTelegram.user_id = 107359676;
