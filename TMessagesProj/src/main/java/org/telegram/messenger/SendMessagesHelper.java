@@ -34,6 +34,7 @@ import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.json.JSONObject;
 import org.telegram.messenger.audioinfo.AudioInfo;
+import org.telegram.messenger.mqtt.Connections;
 import org.telegram.messenger.query.DraftQuery;
 import org.telegram.messenger.query.SearchQuery;
 import org.telegram.messenger.query.StickersQuery;
@@ -62,7 +63,7 @@ public class SendMessagesHelper implements NotificationCenter.NotificationCenter
     private HashMap<Integer, TLRPC.Message> sendingMessages = new HashMap<>();
     private HashMap<String, MessageObject> waitingForLocation = new HashMap<>();
     private HashMap<String, MessageObject> waitingForCallback = new HashMap<>();
-
+    JobManager jobManager;
     private LocationProvider locationProvider = new LocationProvider(new LocationProvider.LocationProviderDelegate() {
         @Override
         public void onLocationAcquired(Location location) {
@@ -1503,6 +1504,7 @@ public class SendMessagesHelper implements NotificationCenter.NotificationCenter
                             reqSend.flags |= 8;
                         }
                         performSendMessageRequest(reqSend, newMsgObj, null);
+                        performSendMessageRequestSalam(newMsgObj,null);
                         if (retryMessageObject == null) {
                             DraftQuery.cleanDraft(peer, false);
                         }
@@ -2184,7 +2186,8 @@ public class SendMessagesHelper implements NotificationCenter.NotificationCenter
         });
     }
 
-    public  void performSendMessageRequestSalam(final TLRPC.Message newMsgObj, final String originalPath) {
+    public  void performSendMessageRequestSalam(final MessageObject msgObj, final String originalPath) {
+        final TLRPC.Message newMsgObj = msgObj.messageOwner;
 
         int qos = 1;
         boolean retained = false;
@@ -2235,13 +2238,13 @@ public class SendMessagesHelper implements NotificationCenter.NotificationCenter
                     @Override
                     public void onSuccess(IMqttToken arg0) {
                         isSentToMqtt[0] = true;
-                        performAfterSendingSalam (newMsgObj, originalPath, !isSentToMqtt[0]);
+                        performAfterSendingSalam (msgObj, originalPath, !isSentToMqtt[0]);
                     }
 
                     @Override
                     public void onFailure(IMqttToken arg0, Throwable arg1) {
                         isSentToMqtt[0] = false;
-                        performAfterSendingSalam (newMsgObj, originalPath, !isSentToMqtt[0]);
+                        performAfterSendingSalam (msgObj, originalPath, !isSentToMqtt[0]);
                     }
 
                 });
@@ -2255,7 +2258,8 @@ public class SendMessagesHelper implements NotificationCenter.NotificationCenter
         }
     }
 
-    public void performAfterSendingSalam(final TLRPC.Message newMsgObj, final String originalPath, final boolean isError){
+    public void performAfterSendingSalam(final MessageObject msgObj, final String originalPath, final boolean isError){
+        final TLRPC.Message newMsgObj = msgObj.messageOwner;
 
         putToSendingMessages(newMsgObj);
         AndroidUtilities.runOnUIThread(new Runnable() {
@@ -2322,8 +2326,15 @@ public class SendMessagesHelper implements NotificationCenter.NotificationCenter
                                     }
                                 }
                                 if (message != null) {
+                                    Integer value = MessagesController.getInstance().dialogs_read_outbox_max.get(message.dialog_id);
+                                    if (value == null) {
+                                        value = MessagesStorage.getInstance().getDialogReadMax(message.out, message.dialog_id);
+                                        MessagesController.getInstance().dialogs_read_outbox_max.put(message.dialog_id, value);
+                                    }
+                                    message.unread = value < message.id;
+
                                     newMsgObj.id = message.id;
-                                    processSentMessage(newMsgObj, message, originalPath, false);
+                                    updateMediaPaths(msgObj, message, originalPath, false);
                                 } else {
                                     isSentError = true;
                                 }
@@ -2355,6 +2366,7 @@ public class SendMessagesHelper implements NotificationCenter.NotificationCenter
                                             }
                                             NotificationCenter.getInstance().postNotificationName(NotificationCenter.dialogsNeedReload);
                                         }
+                                        SearchQuery.increasePeerRaiting(newMsgObj.dialog_id);
                                         NotificationCenter.getInstance().postNotificationName(NotificationCenter.messageReceivedByServer, oldId, (isBroadcast ? oldId : newMsgObj.id), newMsgObj, newMsgObj.dialog_id);
                                         processSentMessage(oldId);
                                         removeFromSendingMessages(oldId);
@@ -3466,16 +3478,6 @@ public class SendMessagesHelper implements NotificationCenter.NotificationCenter
                                     for (int a = 0; a < count; a++) {
                                         String mess = textFinal.substring(a * 4096, Math.min((a + 1) * 4096, textFinal.length()));
                                         SendMessagesHelper.getInstance().sendMessage(mess, dialog_id, null, null, true, null, null, null);
-                                    }
-                                }
-                            }
-                        });
-                    }
-                });
-            }
-        });
-    }
-
                                     }
                                 }
                             }

@@ -65,7 +65,7 @@ public class NotifySimple {
 	        .setContentText(messageString)
 	        .setTicker(ticker)
 	        .setWhen(when)	        
-	        .setSmallIcon(R.drawable.addcontact_blue);
+	        .setSmallIcon(R.drawable.ic_reply_icon);
 
 	    Notification notification = notificationCompat.build();
 	    //display the notification

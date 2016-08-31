@@ -27,16 +27,16 @@ import org.telegram.messenger.R;
 
 public class Theme {
 
-    public static final int ACTION_BAR_COLOR = 0xff527da3;
+    public static final int ACTION_BAR_COLOR = 0xff00BCD4;
     public static final int ACTION_BAR_PHOTO_VIEWER_COLOR = 0x7f000000;
     public static final int ACTION_BAR_MEDIA_PICKER_COLOR = 0xff333333;
     public static final int ACTION_BAR_CHANNEL_INTRO_COLOR = 0xffffffff;
     public static final int ACTION_BAR_PLAYER_COLOR = 0xffffffff;
     public static final int ACTION_BAR_TITLE_COLOR = 0xffffffff;
     public static final int ACTION_BAR_SUBTITLE_COLOR = 0xffd5e8f7;
-    public static final int ACTION_BAR_PROFILE_COLOR = 0xff598fba;
+    public static final int ACTION_BAR_PROFILE_COLOR = 0xff0097A7;
     public static final int ACTION_BAR_PROFILE_SUBTITLE_COLOR = 0xffd7eafa;
-    public static final int ACTION_BAR_MAIN_AVATAR_COLOR = 0xff5085b1;
+    public static final int ACTION_BAR_MAIN_AVATAR_COLOR = 0xff26C6DA;
     public static final int ACTION_BAR_ACTION_MODE_TEXT_COLOR = 0xff737373;
     public static final int ACTION_BAR_SELECTOR_COLOR = 0xff406d94;
 
@@ -60,7 +60,8 @@ public class Theme {
     public static final int DIALOGS_MESSAGE_TEXT_COLOR = 0xff8f8f8f;
     public static final int DIALOGS_NAME_TEXT_COLOR = 0xff4d83b3;
     public static final int DIALOGS_ATTACH_TEXT_COLOR = 0xff4d83b3;
-    public static final int DIALOGS_PRINTING_TEXT_COLOR = 0xff4d83b3;
+    public static final int DIALOGS_PRINTING_TEXT_COLOR = 0xff00BCD4;
+
     public static final int DIALOGS_DRAFT_TEXT_COLOR = 0xffdd4b39;
 
     public static final int CHAT_UNREAD_TEXT_COLOR = 0xff5695cc;
@@ -126,7 +127,8 @@ public class Theme {
     public static final int MSG_IN_REPLY_MEDIA_MESSAGE_SELETED_TEXT_COLOR = 0xff89b4c1;
     public static final int MSG_OUT_REPLY_MEDIA_MESSAGE_SELETED_TEXT_COLOR = 0xff65b05b;
     public static final int MSG_STICKER_REPLY_MESSAGE_TEXT_COLOR = 0xffffffff;
-    public static final int MSG_IN_WEB_PREVIEW_LINE_COLOR = 0xff70b4e8;
+    public static final int MSG_IN_WEB_PREVIEW_LINE_COLOR = 0xff4DD0E1;
+
     public static final int MSG_OUT_WEB_PREVIEW_LINE_COLOR = 0xff88c97b;
     public static final int MSG_IN_SITE_NAME_TEXT_COLOR = 0xff3a8ccf;
     public static final int MSG_OUT_SITE_NAME_TEXT_COLOR = 0xff55ab4f;
@@ -186,8 +188,10 @@ public class Theme {
     public static final int MSG_OUT_VENUE_INFO_SELECTED_TEXT_COLOR = 0xff65b05b;
     public static final int MSG_MEDIA_INFO_TEXT_COLOR = 0xffffffff;
     public static final int MSG_TEXT_COLOR = 0xff000000;
-    public static final int MSG_LINK_TEXT_COLOR = 0xff2678b6;
-    public static final int MSG_LINK_SELECT_BACKGROUND_COLOR = 0x3362a9e3;
+    public static final int MSG_LINK_TEXT_COLOR = 0xff00BCD4;
+
+
+    public static final int MSG_LINK_SELECT_BACKGROUND_COLOR = 0x3329B6F6;
     public static final int MSG_TEXT_SELECT_BACKGROUND_COLOR = 0x6662a9e3;
 
 

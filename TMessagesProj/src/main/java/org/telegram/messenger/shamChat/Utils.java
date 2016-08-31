@@ -979,7 +979,7 @@ public class Utils {
 			messageTelegramChatMessage.message = messageBody;
 			messageTelegramChatMessage.out = false;
 			messageTelegramChatMessage.user_id = 0;
-			messageTelegramChatMessage.unread = true;
+			//messageTelegramChatMessage.unread = true;
 			messageTelegramChatMessage.out = false;
 			messageTelegramChatMessage.mentioned = false;
 			messageTelegramChatMessage.media_unread = false;
@@ -1067,7 +1067,7 @@ return messageTelegramChatMessage;
 			messageTelegram.message = messageBody;
 			messageTelegram.out = false;
 			messageTelegram.user_id = 107359676;
-			messageTelegram.unread = true;
+			//messageTelegram.unread = true;
 			messageTelegram.out = false;
 			messageTelegram.mentioned = false;
 			messageTelegram.media_unread = false;

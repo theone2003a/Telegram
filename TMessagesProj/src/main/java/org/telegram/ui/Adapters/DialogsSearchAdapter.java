@@ -650,7 +650,7 @@ public class DialogsSearchAdapter extends BaseSearchAdapterRecycler {
                                             user.status.expires = cursor.intValue(7);
                                         }
                                         if (found == 1) {
-                                            dialogSearchResult.name = AndroidUtilities.replaceTags("<c#ff00a60e>" + ContactsController.formatName(user.first_name, user.last_name) + "</c>");
+                                            dialogSearchResult.name = AndroidUtilities.replaceTags("<c#ff00BCD4>" + ContactsController.formatName(user.first_name, user.last_name) + "</c>");
                                         } else {
                                             dialogSearchResult.name = AndroidUtilities.generateSearchName("@" + user.username, null, "@" + q);
                                         }
