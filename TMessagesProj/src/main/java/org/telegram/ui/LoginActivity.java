@@ -1152,7 +1152,7 @@ public class LoginActivity extends BaseFragment {
             problemText.setText(LocaleController.getString("DidNotGetTheCode", R.string.DidNotGetTheCode));
             problemText.setGravity(LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT);
             problemText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
-            problemText.setTextColor(0xff4d83b3);
+            problemText.setTextColor(0xff00BCD4);
             problemText.setLineSpacing(AndroidUtilities.dp(2), 1.0f);
             problemText.setPadding(0, AndroidUtilities.dp(2), 0, AndroidUtilities.dp(12));
             addView(problemText, LayoutHelper.createLinear(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT, 0, 20, 0, 0));
@@ -1188,7 +1188,7 @@ public class LoginActivity extends BaseFragment {
 
             TextView wrongNumber = new TextView(context);
             wrongNumber.setGravity((LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT) | Gravity.CENTER_HORIZONTAL);
-            wrongNumber.setTextColor(0xff4d83b3);
+            wrongNumber.setTextColor(0xff00BCD4);
             wrongNumber.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
             wrongNumber.setLineSpacing(AndroidUtilities.dp(2), 1.0f);
             wrongNumber.setPadding(0, AndroidUtilities.dp(24), 0, 0);
@@ -1752,7 +1752,7 @@ public class LoginActivity extends BaseFragment {
 
             TextView cancelButton = new TextView(context);
             cancelButton.setGravity((LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT) | Gravity.TOP);
-            cancelButton.setTextColor(0xff4d83b3);
+            cancelButton.setTextColor(0xff00BCD4);
             cancelButton.setText(LocaleController.getString("ForgotPassword", R.string.ForgotPassword));
             cancelButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
             cancelButton.setLineSpacing(AndroidUtilities.dp(2), 1.0f);
@@ -2093,7 +2093,7 @@ public class LoginActivity extends BaseFragment {
 
             cancelButton = new TextView(context);
             cancelButton.setGravity((LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT) | Gravity.BOTTOM);
-            cancelButton.setTextColor(0xff4d83b3);
+            cancelButton.setTextColor(0xff00BCD4);
             cancelButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
             cancelButton.setLineSpacing(AndroidUtilities.dp(2), 1.0f);
             cancelButton.setPadding(0, AndroidUtilities.dp(14), 0, 0);
@@ -2322,7 +2322,7 @@ public class LoginActivity extends BaseFragment {
             TextView wrongNumber = new TextView(context);
             wrongNumber.setText(LocaleController.getString("CancelRegistration", R.string.CancelRegistration));
             wrongNumber.setGravity((LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT) | Gravity.CENTER_HORIZONTAL);
-            wrongNumber.setTextColor(0xff4d83b3);
+            wrongNumber.setTextColor(0xff00BCD4);
             wrongNumber.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
             wrongNumber.setLineSpacing(AndroidUtilities.dp(2), 1.0f);
             wrongNumber.setPadding(0, AndroidUtilities.dp(24), 0, 0);

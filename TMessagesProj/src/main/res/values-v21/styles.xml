@@ -16,8 +16,8 @@
         <item name="android:colorBackground">@android:color/white</item>
         <item name="android:windowBackground">@android:color/white</item>
         <item name="android:windowContentOverlay">@null</item>
-        <item name="android:colorPrimaryDark">#435e7e</item>
-        <item name="android:colorPrimary">#54759e</item>
+        <item name="android:colorPrimaryDark">#0097A7</item>
+        <item name="android:colorPrimary">#00BCD4</item>
     </style>
 
     <style name="Theme.TMessages" parent="@android:style/Theme.Material.Light">
@@ -33,9 +33,9 @@
         <item name="android:editTextStyle">@style/Theme.TMessages.EditText</item>
         <item name="android:actionBarItemBackground">@drawable/bar_selector_style</item>
         <item name="android:colorPrimaryDark">#33000000</item>
-        <item name="android:colorPrimary">#54759e</item>
+        <item name="android:colorPrimary">#00838F</item>
         <item name="android:alertDialogTheme">@style/Theme.TMessages.Dialog.Alert</item>
-        <item name="android:colorControlActivated">#4d83b3</item>
+        <item name="android:colorControlActivated">#00BCD4</item>
     </style>
 
     <style name="Theme.TMessages.PopupNotification" parent="Theme.TMessages">
@@ -48,13 +48,13 @@
     </style>
 
     <style name="Theme.TMessages.Dialog.Alert" parent="android:style/Theme.Material.Light.Dialog.Alert">
-        <item name="android:colorAccent">#4d83b3</item>
+        <item name="android:colorAccent">#00BCD4</item>
     </style>
 
     <!--ACTION BAR-->
 
     <style name="ActionBar.Transparent.TMessages.Start" parent="android:style/Widget.Material.Light.ActionBar">
-        <item name="android:background">#ff54759e</item>
+        <item name="android:background">#ff00838F</item>
         <item name="android:logo">@drawable/transparent</item>
         <item name="android:title">""</item>
     </style>
@@ -69,7 +69,7 @@
     <!--BORDERLESS BUTTON-->
 
     <style name="Theme.TMessages.BorderLessButton" parent="android:Widget.Material.Light.ButtonBar.AlertDialog">
-        <item name="android:textColor">#54759e</item>
+        <item name="android:textColor">#00838F</item>
     </style>
 
     <!--LIST VIEW-->

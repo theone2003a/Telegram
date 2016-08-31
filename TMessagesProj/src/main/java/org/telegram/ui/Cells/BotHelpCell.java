@@ -60,10 +60,10 @@ public class BotHelpCell extends View {
         textPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
         textPaint.setTextSize(AndroidUtilities.dp(16));
         textPaint.setColor(0xff000000);
-        textPaint.linkColor = 0xff316f9f;
+        textPaint.linkColor = 0xff29b6f7;
 
         urlPaint = new Paint();
-        urlPaint.setColor(0x33316f9f);
+        urlPaint.setColor(0x3329b6f7);
     }
 
     public void setDelegate(BotHelpCellDelegate botHelpCellDelegate) {

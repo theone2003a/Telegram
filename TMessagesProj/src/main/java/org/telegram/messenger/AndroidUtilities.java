@@ -446,7 +446,7 @@ public class AndroidUtilities {
             Intent intent = new Intent(Intent.ACTION_VIEW, uri);
             if (MediaController.getInstance().canCustomTabs()) {
                 intent.putExtra("android.support.customtabs.extra.SESSION", (Parcelable) null);
-                intent.putExtra("android.support.customtabs.extra.TOOLBAR_COLOR", 0xff54759e);
+                intent.putExtra("android.support.customtabs.extra.TOOLBAR_COLOR", 0xff00838F);
                 intent.putExtra("android.support.customtabs.extra.TITLE_VISIBILITY", 1);
 
                 Intent actionIntent = new Intent(Intent.ACTION_SEND);
@@ -1023,7 +1023,7 @@ public class AndroidUtilities {
                 builder.append(" ");
             }
             query = query.trim();
-            builder.append(AndroidUtilities.replaceTags("<c#ff4d83b3>" + query + "</c>"));
+            builder.append(AndroidUtilities.replaceTags("<c#ff00BCD4>" + query + "</c>"));
 
             lastIndex = end;
         }

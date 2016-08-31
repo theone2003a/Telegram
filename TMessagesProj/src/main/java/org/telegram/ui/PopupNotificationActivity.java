@@ -348,7 +348,7 @@ public class PopupNotificationActivity extends Activity implements NotificationC
         actionBar.setOccupyStatusBar(false);
         actionBar.setBackButtonImage(R.drawable.ic_ab_back);
 //        actionBar.setBackgroundColor(0xff54759e);
-        actionBar.setBackgroundColor(0xFFAD5C5E);
+        actionBar.setBackgroundColor(0xFF00BCD4);
         actionBar.setItemsBackground(R.drawable.bar_selector);
         popupContainer.addView(actionBar);
         ViewGroup.LayoutParams layoutParams = actionBar.getLayoutParams();

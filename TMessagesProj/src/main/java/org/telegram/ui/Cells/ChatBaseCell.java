@@ -173,7 +173,7 @@ public class ChatBaseCell extends BaseCell implements MediaController.FileDownlo
 
             replyTextPaint = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
             replyTextPaint.setTextSize(AndroidUtilities.dp(14));
-            replyTextPaint.linkColor = 0xff316f9f;
+            replyTextPaint.linkColor = 0xff29B6F6;
 
             replyLinePaint = new Paint();
         }

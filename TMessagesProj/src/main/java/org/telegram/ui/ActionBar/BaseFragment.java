@@ -119,7 +119,7 @@ public class BaseFragment {
                 actionBar = new ActionBar(parentLayout.getContext());
                 actionBar.parentFragment = this;
 //                actionBar.setBackgroundColor(0xff54759e);
-                actionBar.setBackgroundColor(0xFFAD5C5E);
+                actionBar.setBackgroundColor(0xFF00BCD4);
                 actionBar.setItemsBackground(R.drawable.bar_selector);
             }
         }

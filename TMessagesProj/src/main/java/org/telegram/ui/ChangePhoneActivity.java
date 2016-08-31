@@ -960,7 +960,7 @@ public class ChangePhoneActivity extends BaseFragment {
             problemText.setText(LocaleController.getString("DidNotGetTheCode", R.string.DidNotGetTheCode));
             problemText.setGravity(LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT);
             problemText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
-            problemText.setTextColor(0xff4d83b3);
+            problemText.setTextColor(0xff00BCD4);
             problemText.setLineSpacing(AndroidUtilities.dp(2), 1.0f);
             problemText.setPadding(0, AndroidUtilities.dp(2), 0, AndroidUtilities.dp(12));
             addView(problemText, LayoutHelper.createLinear(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT, 0, 20, 0, 0));
@@ -996,7 +996,7 @@ public class ChangePhoneActivity extends BaseFragment {
 
             TextView wrongNumber = new TextView(context);
             wrongNumber.setGravity((LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT) | Gravity.CENTER_HORIZONTAL);
-            wrongNumber.setTextColor(0xff4d83b3);
+            wrongNumber.setTextColor(0xff00BCD4);
             wrongNumber.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
             wrongNumber.setLineSpacing(AndroidUtilities.dp(2), 1.0f);
             wrongNumber.setPadding(0, AndroidUtilities.dp(24), 0, 0);

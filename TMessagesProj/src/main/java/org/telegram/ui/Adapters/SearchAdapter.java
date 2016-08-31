@@ -275,7 +275,7 @@ public class SearchAdapter extends BaseSearchAdapter {
                         foundUserName = foundUserName.substring(1);
                     }
                     try {
-                        username = AndroidUtilities.replaceTags(String.format("<c#ff4d83b3>@%s</c>%s", un.substring(0, foundUserName.length()), un.substring(foundUserName.length())));
+                        username = AndroidUtilities.replaceTags(String.format("<c#ff00BCD4>@%s</c>%s", un.substring(0, foundUserName.length()), un.substring(foundUserName.length())));
                     } catch (Exception e) {
                         username = un;
                         FileLog.e("tmessages", e);
