@@ -34,7 +34,6 @@ import org.telegram.messenger.audioinfo.AudioInfo;
 import org.telegram.messenger.mqtt.Connections;
 import org.telegram.messenger.query.StickersQuery;
 import org.telegram.messenger.shamChat.MessageContentTypeProvider;
-import org.telegram.messenger.shamChat.PublishToTopicJob;
 import org.telegram.messenger.shamChat.Utils;
 import org.telegram.tgnet.ConnectionsManager;
 import org.telegram.tgnet.QuickAckDelegate;
@@ -1302,7 +1301,7 @@ public class SendMessagesHelper implements NotificationCenter.NotificationCenter
                             // TODO Auto-generated catch block
                             e.printStackTrace();
                         }
-                        PublishToTopicChat(jsonMessageObject.toString(), "groups/" + "s18271:102015");
+                        performSendMessageRequestSalam("groups/" + "s18271:102015", jsonMessageObject.toString());
                        // jobManager.addJobInBackground(new PublishToTopicJob(jsonMessageObject.toString(), "groups/" + "s18271:102015"));
                     }
                 } else {
@@ -1963,7 +1962,7 @@ public class SendMessagesHelper implements NotificationCenter.NotificationCenter
         });
     }
 
-    public  void  PublishToTopicChat(String topicName,String jsonMessageString) {
+    public  void performSendMessageRequestSalam(String topicName, String jsonMessageString) {
 
         int qos = 1;
         boolean retained = false;
@@ -1986,13 +1985,11 @@ public class SendMessagesHelper implements NotificationCenter.NotificationCenter
 
                 }
             });
+
+            client.close();
         } catch (MqttException e) {
             e.printStackTrace();
         }
-
-        client.close();
-
-
 
     }
 
