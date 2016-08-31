@@ -51,7 +51,7 @@ public class UserCell extends FrameLayout {
     private TLRPC.FileLocation lastAvatar;
 
     private int statusColor = 0xffa8a8a8;
-    private int statusOnlineColor = 0xff3b84c0;
+    private int statusOnlineColor = 0xff26C6DA;
 
     public UserCell(Context context, int padding, int checkbox, boolean admin) {
         super(context);

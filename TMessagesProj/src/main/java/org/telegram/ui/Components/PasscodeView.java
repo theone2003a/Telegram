@@ -972,13 +972,13 @@ public class PasscodeView extends FrameLayout {
         SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Activity.MODE_PRIVATE);
         int selectedBackground = preferences.getInt("selectedBackground", 1000001);
         if (selectedBackground == 1000001) {
-            backgroundFrameLayout.setBackgroundColor(0xff517c9e);
+            backgroundFrameLayout.setBackgroundColor(0xff00ACC1);
         } else {
             backgroundDrawable = ApplicationLoader.getCachedWallpaper();
             if (backgroundDrawable != null) {
                 backgroundFrameLayout.setBackgroundColor(0xbf000000);
             } else {
-                backgroundFrameLayout.setBackgroundColor(0xff517c9e);
+                backgroundFrameLayout.setBackgroundColor(0xff00ACC1);
             }
         }
 

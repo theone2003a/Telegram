@@ -23,8 +23,8 @@ public class IdenticonDrawable extends Drawable {
     private int colors[] = {
             0xffffffff,
             0xffd5e6f3,
-            0xff2d5775,
-            0xff2f99c9
+            0xff00ACC1,
+            0xff26C6DA
     };
 
     private int getBits(int bitOffset) {
