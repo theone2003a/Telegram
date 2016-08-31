@@ -79,7 +79,6 @@ public class ImageLoader {
     private HashMap<String, Runnable> retryHttpsTasks = new HashMap<>();
     private int currentHttpFileLoadTasksCount = 0;
 
-    public VMRuntimeHack runtimeHack = null;
     private String ignoreRemoval = null;
 
     private volatile long lastCacheOutTime = 0;
@@ -631,7 +630,7 @@ public class ImageLoader {
                         BitmapFactory.Options opts = new BitmapFactory.Options();
                         opts.inSampleSize = 1;
 
-                        if (Build.VERSION.SDK_INT >= 14 && Build.VERSION.SDK_INT < 21) {
+                        if (Build.VERSION.SDK_INT < 21) {
                             opts.inPurgeable = true;
                         }
 
@@ -685,9 +684,6 @@ public class ImageLoader {
                             } else if (blurType == 0 && opts.inPurgeable) {
                                 Utilities.pinBitmap(image);
                             }
-                            if (runtimeHack != null) {
-                                runtimeHack.trackFree(image.getRowBytes() * image.getHeight());
-                            }
                         }
                     } catch (Throwable e) {
                         FileLog.e("tmessages", e);
@@ -715,9 +711,6 @@ public class ImageLoader {
                         }
 
                         int delay = 20;
-                        if (runtimeHack != null) {
-                            delay = 60;
-                        }
                         if (mediaId != null) {
                             delay = 0;
                         }
@@ -782,7 +775,7 @@ public class ImageLoader {
                         } else {
                             opts.inPreferredConfig = Bitmap.Config.RGB_565;
                         }
-                        if (Build.VERSION.SDK_INT >= 14 && Build.VERSION.SDK_INT < 21) {
+                        if (Build.VERSION.SDK_INT < 21) {
                             opts.inPurgeable = true;
                         }
 
@@ -850,9 +843,6 @@ public class ImageLoader {
                             if (!blured && opts.inPurgeable) {
                                 Utilities.pinBitmap(image);
                             }
-                            if (runtimeHack != null && image != null) {
-                                runtimeHack.trackFree(image.getRowBytes() * image.getHeight());
-                            }
                         }
                     } catch (Throwable e) {
                         //don't promt
@@ -877,9 +867,6 @@ public class ImageLoader {
                             toSet = bitmapDrawable;
                         } else {
                             Bitmap image = bitmapDrawable.getBitmap();
-                            if (runtimeHack != null) {
-                                runtimeHack.trackAlloc(image.getRowBytes() * image.getHeight());
-                            }
                             image.recycle();
                         }
                     }
@@ -1098,19 +1085,10 @@ public class ImageLoader {
 
         int cacheSize = Math.min(15, ((ActivityManager) ApplicationLoader.applicationContext.getSystemService(Context.ACTIVITY_SERVICE)).getMemoryClass() / 7) * 1024 * 1024;
 
-        if (Build.VERSION.SDK_INT < 11) {
-            runtimeHack = new VMRuntimeHack();
-            cacheSize = 1024 * 1024 * 3;
-        }
         memCache = new LruCache(cacheSize) {
             @Override
             protected int sizeOf(String key, BitmapDrawable value) {
-                Bitmap b = value.getBitmap();
-                if (Build.VERSION.SDK_INT < 12) {
-                    return b.getRowBytes() * b.getHeight();
-                } else {
-                    return b.getByteCount();
-                }
+                return value.getBitmap().getByteCount();
             }
 
             @Override
@@ -1121,9 +1099,6 @@ public class ImageLoader {
                 final Integer count = bitmapUseCounts.get(key);
                 if (count == null || count == 0) {
                     Bitmap b = oldValue.getBitmap();
-                    if (runtimeHack != null) {
-                        runtimeHack.trackAlloc(b.getRowBytes() * b.getHeight());
-                    }
                     if (!b.isRecycled()) {
                         b.recycle();
                     }
@@ -1191,8 +1166,8 @@ public class ImageLoader {
                                 AndroidUtilities.addMediaToGallery(finalFile.toString());
                             }
                         }
-                        ImageLoader.this.fileDidLoaded(location, finalFile, type);
                         NotificationCenter.getInstance().postNotificationName(NotificationCenter.FileDidLoaded, location);
+                        ImageLoader.this.fileDidLoaded(location, finalFile, type);
                     }
                 });
             }
@@ -1809,7 +1784,7 @@ public class ImageLoader {
                 key = document.dc_id + "_" + document.id;
                 String docExt = FileLoader.getDocumentFileName(document);
                 int idx;
-                if (docExt == null || (idx = docExt.lastIndexOf(".")) == -1) {
+                if (docExt == null || (idx = docExt.lastIndexOf('.')) == -1) {
                     docExt = "";
                 } else {
                     docExt = docExt.substring(idx);
@@ -1937,30 +1912,17 @@ public class ImageLoader {
         }
         while (currentHttpTasksCount < 4 && !httpTasks.isEmpty()) {
             HttpImageTask task = httpTasks.poll();
-            if (android.os.Build.VERSION.SDK_INT >= 11) {
-                task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, null, null, null);
-            } else {
-                task.execute(null, null, null);
-            }
+            task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, null, null, null);
             currentHttpTasksCount++;
         }
     }
 
-    public void loadHttpFile(String url, String extension) {
+    public void loadHttpFile(String url, String defaultExt) {
         if (url == null || url.length() == 0 || httpFileLoadTasksByKeys.containsKey(url)) {
             return;
         }
-        String ext = extension;
-        if (ext == null) {
-            int idx = url.lastIndexOf(".");
-            if (idx != -1) {
-                ext = url.substring(idx + 1);
-            }
-            if (ext == null || ext.length() == 0 || ext.length() > 4) {
-                ext = "jpg";
-            }
-        }
-        File file = new File(FileLoader.getInstance().getDirectory(FileLoader.MEDIA_DIR_CACHE), Utilities.MD5(url) + "_temp." + getHttpUrlExtension(url, extension));
+        String ext = getHttpUrlExtension(url, defaultExt);
+        File file = new File(FileLoader.getInstance().getDirectory(FileLoader.MEDIA_DIR_CACHE), Utilities.MD5(url) + "_temp." + ext);
         file.delete();
 
         HttpFileTask task = new HttpFileTask(url, file, ext);
@@ -2015,11 +1977,7 @@ public class ImageLoader {
                 }
                 while (currentHttpFileLoadTasksCount < 2 && !httpFileLoadTasks.isEmpty()) {
                     HttpFileTask task = httpFileLoadTasks.poll();
-                    if (android.os.Build.VERSION.SDK_INT >= 11) {
-                        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, null, null, null);
-                    } else {
-                        task.execute(null, null, null);
-                    }
+                    task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, null, null, null);
                     currentHttpFileLoadTasksCount++;
                 }
             }
@@ -2066,7 +2024,7 @@ public class ImageLoader {
         }
         bmOptions.inJustDecodeBounds = false;
         bmOptions.inSampleSize = (int) scaleFactor;
-        bmOptions.inPurgeable = Build.VERSION.SDK_INT >= 14 && Build.VERSION.SDK_INT < 21;
+        bmOptions.inPurgeable = Build.VERSION.SDK_INT < 21;
 
         String exifPath = null;
         if (path != null) {
@@ -2276,7 +2234,7 @@ public class ImageLoader {
 
     public static String getHttpUrlExtension(String url, String defaultExt) {
         String ext = null;
-        int idx = url.lastIndexOf(".");
+        int idx = url.lastIndexOf('.');
         if (idx != -1) {
             ext = url.substring(idx + 1);
         }

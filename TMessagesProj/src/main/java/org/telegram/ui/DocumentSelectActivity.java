@@ -8,6 +8,9 @@
 
 package org.telegram.ui;
 
+import android.animation.Animator;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
@@ -15,7 +18,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
-import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
 import android.view.MotionEvent;
@@ -33,11 +35,10 @@ import org.telegram.messenger.FileLog;
 import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.R;
 import org.telegram.ui.ActionBar.BackDrawable;
+import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.Adapters.BaseFragmentAdapter;
 import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.ActionBarMenu;
-import org.telegram.messenger.AnimationCompat.AnimatorSetProxy;
-import org.telegram.messenger.AnimationCompat.ObjectAnimatorProxy;
 import org.telegram.ui.ActionBar.BaseFragment;
 import org.telegram.ui.Cells.SharedDocumentCell;
 import org.telegram.ui.Components.LayoutHelper;
@@ -186,7 +187,7 @@ public class DocumentSelectActivity extends BaseFragment {
         });
         actionMode.addView(selectedMessagesCountTextView, LayoutHelper.createLinear(0, LayoutHelper.MATCH_PARENT, 1.0f, 65, 0, 0, 0));
 
-        actionModeViews.add(actionMode.addItem(done, R.drawable.ic_ab_done_gray, R.drawable.bar_selector_mode, null, AndroidUtilities.dp(54)));
+        actionModeViews.add(actionMode.addItem(done, R.drawable.ic_ab_done_gray, Theme.ACTION_BAR_MODE_SELECTOR_COLOR, null, AndroidUtilities.dp(54)));
 
         fragmentView = getParentActivity().getLayoutInflater().inflate(R.layout.document_select_layout, null, false);
         listAdapter = new ListAdapter(context);
@@ -237,18 +238,16 @@ public class DocumentSelectActivity extends BaseFragment {
                     }
                     selectedFiles.put(file.toString(), item);
                     selectedMessagesCountTextView.setNumber(1, false);
-                    if (Build.VERSION.SDK_INT >= 11) {
-                        AnimatorSetProxy animatorSet = new AnimatorSetProxy();
-                        ArrayList<Object> animators = new ArrayList<>();
-                        for (int a = 0; a < actionModeViews.size(); a++) {
-                            View view2 = actionModeViews.get(a);
-                            AndroidUtilities.clearDrawableAnimation(view2);
-                            animators.add(ObjectAnimatorProxy.ofFloat(view2, "scaleY", 0.1f, 1.0f));
-                        }
-                        animatorSet.playTogether(animators);
-                        animatorSet.setDuration(250);
-                        animatorSet.start();
+                    AnimatorSet animatorSet = new AnimatorSet();
+                    ArrayList<Animator> animators = new ArrayList<>();
+                    for (int a = 0; a < actionModeViews.size(); a++) {
+                        View view2 = actionModeViews.get(a);
+                        AndroidUtilities.clearDrawableAnimation(view2);
+                        animators.add(ObjectAnimator.ofFloat(view2, "scaleY", 0.1f, 1.0f));
                     }
+                    animatorSet.playTogether(animators);
+                    animatorSet.setDuration(250);
+                    animatorSet.start();
                     scrolling = false;
                     if (view instanceof SharedDocumentCell) {
                         ((SharedDocumentCell) view).setChecked(true, true);
@@ -453,8 +452,9 @@ public class DocumentSelectActivity extends BaseFragment {
                 }*/
             }
         });
-        for (File file : files) {
-            if (file.getName().startsWith(".")) {
+        for (int a = 0; a < files.length; a++) {
+            File file = files[a];
+            if (file.getName().indexOf('.') == 0) {
                 continue;
             }
             ListItem item = new ListItem();
@@ -510,11 +510,11 @@ public class DocumentSelectActivity extends BaseFragment {
 
         HashSet<String> paths = new HashSet<>();
         String defaultPath = Environment.getExternalStorageDirectory().getPath();
-        boolean isDefaultPathRemovable = Build.VERSION.SDK_INT >= 9 && Environment.isExternalStorageRemovable();
+        boolean isDefaultPathRemovable = Environment.isExternalStorageRemovable();
         String defaultPathState = Environment.getExternalStorageState();
         if (defaultPathState.equals(Environment.MEDIA_MOUNTED) || defaultPathState.equals(Environment.MEDIA_MOUNTED_READ_ONLY)) {
             ListItem ext = new ListItem();
-            if (Build.VERSION.SDK_INT < 9 || Environment.isExternalStorageRemovable()) {
+            if (Environment.isExternalStorageRemovable()) {
                 ext.title = LocaleController.getString("SdCard", R.string.SdCard);
                 ext.icon = R.drawable.ic_external_storage;
             } else {

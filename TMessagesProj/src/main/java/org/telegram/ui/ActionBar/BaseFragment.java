@@ -8,6 +8,7 @@
 
 package org.telegram.ui.ActionBar;
 
+import android.animation.AnimatorSet;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -17,9 +18,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 
-import org.telegram.messenger.AnimationCompat.AnimatorSetProxy;
 import org.telegram.messenger.FileLog;
-import org.telegram.messenger.R;
 import org.telegram.tgnet.ConnectionsManager;
 
 public class BaseFragment {
@@ -116,12 +115,17 @@ public class BaseFragment {
                 }
             }
             if (parentLayout != null && actionBar == null) {
-                actionBar = new ActionBar(parentLayout.getContext());
+                actionBar = createActionBar(parentLayout.getContext());
                 actionBar.parentFragment = this;
-                actionBar.setBackgroundColor(0xff54759e);
-                actionBar.setItemsBackground(R.drawable.bar_selector);
             }
         }
+    }
+
+    protected ActionBar createActionBar(Context context) {
+        ActionBar actionBar = new ActionBar(context);
+        actionBar.setBackgroundColor(Theme.ACTION_BAR_COLOR);
+        actionBar.setItemsBackgroundColor(Theme.ACTION_BAR_SELECTOR_COLOR);
+        return actionBar;
     }
 
     public void finishFragment() {
@@ -152,6 +156,10 @@ public class BaseFragment {
         if (actionBar != null) {
             actionBar.setEnabled(false);
         }
+    }
+
+    public boolean needDelayOpenAnimation() {
+        return false;
     }
 
     public void onResume() {
@@ -251,7 +259,7 @@ public class BaseFragment {
 
     }
 
-    protected AnimatorSetProxy onCustomTransitionAnimation(boolean isOpen, final Runnable callback) {
+    protected AnimatorSet onCustomTransitionAnimation(boolean isOpen, final Runnable callback) {
         return null;
     }
 

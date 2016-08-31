@@ -11,7 +11,6 @@ package org.telegram.ui;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -143,9 +142,7 @@ public class ChannelUsersActivity extends BaseFragment implements NotificationCe
         listView.setDividerHeight(0);
         listView.setDrawSelectorOnTop(true);
         listView.setAdapter(listViewAdapter = new ListAdapter(context));
-        if (Build.VERSION.SDK_INT >= 11) {
-            listView.setVerticalScrollbarPosition(LocaleController.isRTL ? ListView.SCROLLBAR_POSITION_LEFT : ListView.SCROLLBAR_POSITION_RIGHT);
-        }
+        listView.setVerticalScrollbarPosition(LocaleController.isRTL ? ListView.SCROLLBAR_POSITION_LEFT : ListView.SCROLLBAR_POSITION_RIGHT);
         frameLayout.addView(listView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -209,9 +206,9 @@ public class ChannelUsersActivity extends BaseFragment implements NotificationCe
                             args.putBoolean("returnAsResult", true);
                             args.putBoolean("needForwardCount", false);
                             args.putBoolean("allowUsernameSearch", true);
-                            if (isMegagroup) {
+                            /*if (isMegagroup) {
                                 args.putBoolean("allowBots", false);
-                            }
+                            }*/
                             args.putString("selectAlertString", LocaleController.getString("ChannelAddUserAdminAlert", R.string.ChannelAddUserAdminAlert));
                             ContactsActivity fragment = new ContactsActivity(args);
                             fragment.setDelegate(new ContactsActivity.ContactsActivityDelegate() {

@@ -8,6 +8,9 @@
 
 package org.telegram.ui;
 
+import android.animation.Animator;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -42,6 +45,7 @@ import org.telegram.messenger.ChatObject;
 import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.MediaController;
 import org.telegram.messenger.MessagesController;
+import org.telegram.messenger.browser.Browser;
 import org.telegram.messenger.query.SharedMediaQuery;
 import org.telegram.messenger.ApplicationLoader;
 import org.telegram.messenger.FileLoader;
@@ -60,10 +64,9 @@ import org.telegram.ui.ActionBar.ActionBarPopupWindow;
 import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.BackDrawable;
 import org.telegram.ui.ActionBar.BottomSheet;
+import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.Adapters.BaseFragmentAdapter;
 import org.telegram.ui.Adapters.BaseSectionsAdapter;
-import org.telegram.messenger.AnimationCompat.AnimatorSetProxy;
-import org.telegram.messenger.AnimationCompat.ObjectAnimatorProxy;
 import org.telegram.ui.Cells.GreySectionCell;
 import org.telegram.ui.Cells.LoadingCell;
 import org.telegram.ui.Cells.SharedDocumentCell;
@@ -254,14 +257,6 @@ public class MediaActivity extends BaseFragment implements NotificationCenter.No
                         actionBar.hideActionMode();
                         listView.invalidateViews();
                     } else {
-                        if (Build.VERSION.SDK_INT < 11 && listView != null) {
-                            listView.setAdapter(null);
-                            listView = null;
-                            photoVideoAdapter = null;
-                            documentsAdapter = null;
-                            audioAdapter = null;
-                            linksAdapter = null;
-                        }
                         finishFragment();
                     }
                 } else if (id == shared_media_item) {
@@ -336,7 +331,7 @@ public class MediaActivity extends BaseFragment implements NotificationCenter.No
                     args.putBoolean("onlySelect", true);
                     args.putInt("dialogsType", 1);
                     DialogsActivity fragment = new DialogsActivity(args);
-                    fragment.setDelegate(new DialogsActivity.MessagesActivityDelegate() {
+                    fragment.setDelegate(new DialogsActivity.DialogsActivityDelegate() {
                         @Override
                         public void didSelectDialog(DialogsActivity fragment, long did, boolean param) {
                             int lower_part = (int) did;
@@ -442,7 +437,7 @@ public class MediaActivity extends BaseFragment implements NotificationCenter.No
         searchItem.getSearchField().setHint(LocaleController.getString("Search", R.string.Search));
         searchItem.setVisibility(View.GONE);
 
-        dropDownContainer = new ActionBarMenuItem(context, menu, R.drawable.bar_selector);
+        dropDownContainer = new ActionBarMenuItem(context, menu, 0);
         dropDownContainer.setSubMenuOpenSide(1);
         dropDownContainer.addSubItem(shared_media_item, LocaleController.getString("SharedMediaTitle", R.string.SharedMediaTitle), 0);
         dropDownContainer.addSubItem(files_item, LocaleController.getString("DocumentsTitle", R.string.DocumentsTitle), 0);
@@ -491,9 +486,9 @@ public class MediaActivity extends BaseFragment implements NotificationCenter.No
         actionMode.addView(selectedMessagesCountTextView, LayoutHelper.createLinear(0, LayoutHelper.MATCH_PARENT, 1.0f, 65, 0, 0, 0));
 
         if ((int) dialog_id != 0) {
-            actionModeViews.add(actionMode.addItem(forward, R.drawable.ic_ab_fwd_forward, R.drawable.bar_selector_mode, null, AndroidUtilities.dp(54)));
+            actionModeViews.add(actionMode.addItem(forward, R.drawable.ic_ab_fwd_forward, Theme.ACTION_BAR_MODE_SELECTOR_COLOR, null, AndroidUtilities.dp(54)));
         }
-        actionModeViews.add(actionMode.addItem(delete, R.drawable.ic_ab_fwd_delete, R.drawable.bar_selector_mode, null, AndroidUtilities.dp(54)));
+        actionModeViews.add(actionMode.addItem(delete, R.drawable.ic_ab_fwd_delete, Theme.ACTION_BAR_MODE_SELECTOR_COLOR, null, AndroidUtilities.dp(54)));
 
         photoVideoAdapter = new SharedPhotoVideoAdapter(context);
         documentsAdapter = new SharedDocumentsAdapter(context, 1);
@@ -516,7 +511,7 @@ public class MediaActivity extends BaseFragment implements NotificationCenter.No
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, final int i, long l) {
                 if ((selectedMode == 1 || selectedMode == 4) && view instanceof SharedDocumentCell) {
-                    MediaActivity.this.onItemClick(i, view, ((SharedDocumentCell) view).getDocument(), 0);
+                    MediaActivity.this.onItemClick(i, view, ((SharedDocumentCell) view).getMessage(), 0);
                 } else if (selectedMode == 3 && view instanceof SharedLinkCell) {
                     MediaActivity.this.onItemClick(i, view, ((SharedLinkCell) view).getMessage(), 0);
                 }
@@ -564,7 +559,7 @@ public class MediaActivity extends BaseFragment implements NotificationCenter.No
             public boolean onItemLongClick(AdapterView<?> parent, View view, int i, long id) {
                 if ((selectedMode == 1 || selectedMode == 4) && view instanceof SharedDocumentCell) {
                     SharedDocumentCell cell = (SharedDocumentCell) view;
-                    MessageObject message = cell.getDocument();
+                    MessageObject message = cell.getMessage();
                     return MediaActivity.this.onItemLongClick(message, view, 0);
                 } else if (selectedMode == 3 && view instanceof SharedLinkCell) {
                     SharedLinkCell cell = (SharedLinkCell) view;
@@ -995,18 +990,16 @@ public class MediaActivity extends BaseFragment implements NotificationCenter.No
         }
         actionBar.createActionMode().getItem(delete).setVisibility(cantDeleteMessagesCount == 0 ? View.VISIBLE : View.GONE);
         selectedMessagesCountTextView.setNumber(1, false);
-        if (Build.VERSION.SDK_INT >= 11) {
-            AnimatorSetProxy animatorSet = new AnimatorSetProxy();
-            ArrayList<Object> animators = new ArrayList<>();
-            for (int i = 0; i < actionModeViews.size(); i++) {
-                View view2 = actionModeViews.get(i);
-                AndroidUtilities.clearDrawableAnimation(view2);
-                animators.add(ObjectAnimatorProxy.ofFloat(view2, "scaleY", 0.1f, 1.0f));
-            }
-            animatorSet.playTogether(animators);
-            animatorSet.setDuration(250);
-            animatorSet.start();
+        AnimatorSet animatorSet = new AnimatorSet();
+        ArrayList<Animator> animators = new ArrayList<>();
+        for (int i = 0; i < actionModeViews.size(); i++) {
+            View view2 = actionModeViews.get(i);
+            AndroidUtilities.clearDrawableAnimation(view2);
+            animators.add(ObjectAnimator.ofFloat(view2, "scaleY", 0.1f, 1.0f));
         }
+        animatorSet.playTogether(animators);
+        animatorSet.setDuration(250);
+        animatorSet.start();
         scrolling = false;
         if (view instanceof SharedDocumentCell) {
             ((SharedDocumentCell) view).setChecked(true, true);
@@ -1064,7 +1057,7 @@ public class MediaActivity extends BaseFragment implements NotificationCenter.No
                             }
                         }
                         File f = null;
-                        String fileName = message.messageOwner.media != null ? FileLoader.getAttachFileName(message.messageOwner.media.document) : "";
+                        String fileName = message.messageOwner.media != null ? FileLoader.getAttachFileName(message.getDocument()) : "";
                         if (message.messageOwner.attachPath != null && message.messageOwner.attachPath.length() != 0) {
                             f = new File(message.messageOwner.attachPath);
                         }
@@ -1076,12 +1069,12 @@ public class MediaActivity extends BaseFragment implements NotificationCenter.No
                             try {
                                 Intent intent = new Intent(Intent.ACTION_VIEW);
                                 MimeTypeMap myMime = MimeTypeMap.getSingleton();
-                                int idx = fileName.lastIndexOf(".");
+                                int idx = fileName.lastIndexOf('.');
                                 if (idx != -1) {
                                     String ext = fileName.substring(idx + 1);
                                     realMimeType = myMime.getMimeTypeFromExtension(ext.toLowerCase());
                                     if (realMimeType == null) {
-                                        realMimeType = message.messageOwner.media.document.mime_type;
+                                        realMimeType = message.getDocument().mime_type;
                                         if (realMimeType == null || realMimeType.length() == 0) {
                                             realMimeType = null;
                                         }
@@ -1111,15 +1104,15 @@ public class MediaActivity extends BaseFragment implements NotificationCenter.No
                                 AlertDialog.Builder builder = new AlertDialog.Builder(getParentActivity());
                                 builder.setTitle(LocaleController.getString("AppName", R.string.AppName));
                                 builder.setPositiveButton(LocaleController.getString("OK", R.string.OK), null);
-                                builder.setMessage(LocaleController.formatString("NoHandleAppInstalled", R.string.NoHandleAppInstalled, message.messageOwner.media.document.mime_type));
+                                builder.setMessage(LocaleController.formatString("NoHandleAppInstalled", R.string.NoHandleAppInstalled, message.getDocument().mime_type));
                                 showDialog(builder.create());
                             }
                         }
                     } else if (!cell.isLoading()) {
-                        FileLoader.getInstance().loadFile(cell.getDocument().messageOwner.media.document, false, false);
+                        FileLoader.getInstance().loadFile(cell.getMessage().getDocument(), false, false);
                         cell.updateFileExistIcon();
                     } else {
-                        FileLoader.getInstance().cancelLoadFile(cell.getDocument().messageOwner.media.document);
+                        FileLoader.getInstance().cancelLoadFile(cell.getMessage().getDocument());
                         cell.updateFileExistIcon();
                     }
                 }
@@ -1139,7 +1132,7 @@ public class MediaActivity extends BaseFragment implements NotificationCenter.No
                         link = ((SharedLinkCell) view).getLink(0);
                     }
                     if (link != null) {
-                        AndroidUtilities.openUrl(getParentActivity(), link);
+                        Browser.openUrl(getParentActivity(), link);
                     }
                 } catch (Exception e) {
                     FileLog.e("tmessages", e);
@@ -1150,7 +1143,7 @@ public class MediaActivity extends BaseFragment implements NotificationCenter.No
 
     private void openWebView(TLRPC.WebPage webPage) {
         BottomSheet.Builder builder = new BottomSheet.Builder(getParentActivity());
-        builder.setCustomView(new WebFrameLayout(getParentActivity(), builder.create(), webPage.title, webPage.url, webPage.embed_url, webPage.embed_width, webPage.embed_height));
+        builder.setCustomView(new WebFrameLayout(getParentActivity(), builder.create(), webPage.site_name, webPage.description, webPage.url, webPage.embed_url, webPage.embed_width, webPage.embed_height));
         builder.setUseFullWidth(true);
         showDialog(builder.create());
     }
@@ -1632,14 +1625,14 @@ public class MediaActivity extends BaseFragment implements NotificationCenter.No
                 @Override
                 public void run() {
                     if (!sharedMediaData[currentType].messages.isEmpty()) {
-                        if (currentType == 1) {
+                        if (currentType == 1 || currentType == 4) {
                             MessageObject messageObject = sharedMediaData[currentType].messages.get(sharedMediaData[currentType].messages.size() - 1);
                             queryServerSearch(query, messageObject.getId(), messageObject.getDialogId());
-                        } else if (currentType == 3 || currentType == 4) {
+                        } else if (currentType == 3) {
                             queryServerSearch(query, 0, dialog_id);
                         }
                     }
-                    if (currentType == 1) {
+                    if (currentType == 1 || currentType == 4) {
                         final ArrayList<MessageObject> copy = new ArrayList<>();
                         copy.addAll(sharedMediaData[currentType].messages);
                         Utilities.searchQueue.postRunnable(new Runnable() {
@@ -1664,7 +1657,8 @@ public class MediaActivity extends BaseFragment implements NotificationCenter.No
 
                                 for (int a = 0; a < copy.size(); a++) {
                                     MessageObject messageObject = copy.get(a);
-                                    for (String q : search) {
+                                    for (int b = 0; b < search.length; b++) {
+                                        String q = search[b];
                                         String name = messageObject.getDocumentName();
                                         if (name == null || name.length() == 0) {
                                             continue;
@@ -1673,6 +1667,31 @@ public class MediaActivity extends BaseFragment implements NotificationCenter.No
                                         if (name.contains(q)) {
                                             resultArray.add(messageObject);
                                             break;
+                                        }
+                                        if (currentType == 4) {
+                                            TLRPC.Document document;
+                                            if (messageObject.type == 0) {
+                                                document = messageObject.messageOwner.media.webpage.document;
+                                            } else {
+                                                document = messageObject.messageOwner.media.document;
+                                            }
+                                            boolean ok = false;
+                                            for (int c = 0; c < document.attributes.size(); c++) {
+                                                TLRPC.DocumentAttribute attribute = document.attributes.get(c);
+                                                if (attribute instanceof TLRPC.TL_documentAttributeAudio) {
+                                                    if (attribute.performer != null) {
+                                                        ok = attribute.performer.toLowerCase().contains(q);
+                                                    }
+                                                    if (!ok && attribute.title != null) {
+                                                        ok = attribute.title.toLowerCase().contains(q);
+                                                    }
+                                                    break;
+                                                }
+                                            }
+                                            if (ok) {
+                                                resultArray.add(messageObject);
+                                                break;
+                                            }
                                         }
                                     }
                                 }
