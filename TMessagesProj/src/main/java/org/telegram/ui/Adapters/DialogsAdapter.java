@@ -49,7 +49,7 @@ public class DialogsAdapter extends RecyclerView.Adapter {
         return current != getItemCount() || current == 1;
     }
 
-    private ArrayList<TLRPC.Dialog> getDialogsArray() {
+    private ArrayList<TLRPC.TL_dialog> getDialogsArray() {
         if (dialogsType == 0) {
             return MessagesController.getInstance().dialogs;
         } else if (dialogsType == 1) {
@@ -73,12 +73,19 @@ public class DialogsAdapter extends RecyclerView.Adapter {
         return count;
     }
 
-    public TLRPC.Dialog getItem(int i) {
-        ArrayList<TLRPC.Dialog> arrayList = getDialogsArray();
+    public TLRPC.TL_dialog getItem(int i) {
+        ArrayList<TLRPC.TL_dialog> arrayList = getDialogsArray();
         if (i < 0 || i >= arrayList.size()) {
             return null;
         }
         return arrayList.get(i);
+    }
+
+    @Override
+    public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
+        if (holder.itemView instanceof DialogCell) {
+            ((DialogCell) holder.itemView).checkCurrentDialogIndex();
+        }
     }
 
     @Override
@@ -103,7 +110,7 @@ public class DialogsAdapter extends RecyclerView.Adapter {
         if (viewHolder.getItemViewType() == 0) {
             DialogCell cell = (DialogCell) viewHolder.itemView;
             cell.useSeparator = (i != getItemCount() - 1);
-            TLRPC.Dialog dialog = getItem(i);
+            TLRPC.TL_dialog dialog = getItem(i);
             if (dialogsType == 0) {
                 if (AndroidUtilities.isTablet()) {
                     cell.setDialogSelected(dialog.id == openedDialogId);

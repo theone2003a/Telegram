@@ -25,7 +25,6 @@ import android.text.method.DigitsKeyListener;
 import android.text.method.PasswordTransformationMethod;
 import android.util.TypedValue;
 import android.view.ActionMode;
-import android.view.ContextMenu;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -229,33 +228,26 @@ public class PasscodeActivity extends BaseFragment implements NotificationCenter
                     }
                 }
             });
-            if (android.os.Build.VERSION.SDK_INT < 11) {
-                passwordEditText.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
-                    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-                        menu.clear();
-                    }
-                });
-            } else {
-                passwordEditText.setCustomSelectionActionModeCallback(new ActionMode.Callback() {
-                    public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-                        return false;
-                    }
 
-                    public void onDestroyActionMode(ActionMode mode) {
-                    }
+            passwordEditText.setCustomSelectionActionModeCallback(new ActionMode.Callback() {
+                public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                    return false;
+                }
 
-                    public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-                        return false;
-                    }
+                public void onDestroyActionMode(ActionMode mode) {
+                }
 
-                    public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-                        return false;
-                    }
-                });
-            }
+                public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                    return false;
+                }
+
+                public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                    return false;
+                }
+            });
 
             if (type == 1) {
-                dropDownContainer = new ActionBarMenuItem(context, menu, R.drawable.bar_selector);
+                dropDownContainer = new ActionBarMenuItem(context, menu, 0);
                 dropDownContainer.setSubMenuOpenSide(1);
                 dropDownContainer.addSubItem(pin_item, LocaleController.getString("PasscodePIN", R.string.PasscodePIN), 0);
                 dropDownContainer.addSubItem(password_item, LocaleController.getString("PasscodePassword", R.string.PasscodePassword), 0);
@@ -362,7 +354,7 @@ public class PasscodeActivity extends BaseFragment implements NotificationCenter
                             @Override
                             public String format(int value) {
                                 if (value == 0) {
-                                    return LocaleController.getString("Disabled", R.string.Disabled);
+                                    return LocaleController.getString("AutoLockDisabled", R.string.AutoLockDisabled);
                                 } else if (value == 1) {
                                     return LocaleController.formatString("AutoLockInTime", R.string.AutoLockInTime, LocaleController.formatPluralString("Minutes", 1));
                                 } else if (value == 2) {

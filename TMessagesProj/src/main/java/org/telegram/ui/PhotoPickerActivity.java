@@ -13,7 +13,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
-import android.os.Build;
 import android.util.Base64;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -34,7 +33,6 @@ import android.widget.TextView;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.telegram.messenger.AndroidUtilities;
-import org.telegram.messenger.AnimationCompat.ViewProxy;
 import org.telegram.messenger.FileLoader;
 import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.MediaController;
@@ -60,6 +58,7 @@ import org.telegram.messenger.UserConfig;
 import org.telegram.messenger.Utilities;
 import org.telegram.ui.ActionBar.ActionBarMenu;
 import org.telegram.ui.ActionBar.ActionBarMenuItem;
+import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.Adapters.BaseFragmentAdapter;
 import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.BaseFragment;
@@ -161,8 +160,8 @@ public class PhotoPickerActivity extends BaseFragment implements NotificationCen
     @SuppressWarnings("unchecked")
     @Override
     public View createView(Context context) {
-        actionBar.setBackgroundColor(0xff333333);
-        actionBar.setItemsBackground(R.drawable.bar_selector_picker);
+        actionBar.setBackgroundColor(Theme.ACTION_BAR_MEDIA_PICKER_COLOR);
+        actionBar.setItemsBackgroundColor(Theme.ACTION_BAR_PICKER_SELECTOR_COLOR);
         actionBar.setBackButtonImage(R.drawable.ic_ab_back);
         if (selectedAlbum != null) {
             actionBar.setTitle(selectedAlbum.bucketName);
@@ -175,11 +174,6 @@ public class PhotoPickerActivity extends BaseFragment implements NotificationCen
             @Override
             public void onItemClick(int id) {
                 if (id == -1) {
-                    if (Build.VERSION.SDK_INT < 11) {
-                        listView.setAdapter(null);
-                        listView = null;
-                        listAdapter = null;
-                    }
                     finishFragment();
                 }
             }
@@ -512,18 +506,10 @@ public class PhotoPickerActivity extends BaseFragment implements NotificationCen
             PhotoViewer.PlaceProviderObject object = new PhotoViewer.PlaceProviderObject();
             object.viewX = coords[0];
             object.viewY = coords[1] - AndroidUtilities.statusBarHeight;
-            if (Build.VERSION.SDK_INT < 11) {
-                float scale = ViewProxy.getScaleX(cell.photoImage);
-                if (scale != 1) {
-                    int width = cell.photoImage.getMeasuredWidth();
-                    object.viewX += (width - width * scale) / 2;
-                    object.viewY += (width - width * scale) / 2;
-                }
-            }
             object.parentView = listView;
             object.imageReceiver = cell.photoImage.getImageReceiver();
             object.thumb = object.imageReceiver.getBitmap();
-            object.scale = ViewProxy.getScaleX(cell.photoImage);
+            object.scale = cell.photoImage.getScaleX();
             cell.checkBox.setVisibility(View.GONE);
             return object;
         }

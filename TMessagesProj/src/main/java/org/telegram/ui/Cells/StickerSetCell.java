@@ -22,10 +22,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.telegram.messenger.AndroidUtilities;
-import org.telegram.messenger.AnimationCompat.ViewProxy;
 import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.R;
 import org.telegram.tgnet.TLRPC;
+import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.Components.BackupImageView;
 import org.telegram.ui.Components.LayoutHelper;
 
@@ -76,21 +76,10 @@ public class StickerSetCell extends FrameLayout {
 
         optionsButton = new ImageView(context);
         optionsButton.setFocusable(false);
-        optionsButton.setBackgroundResource(R.drawable.bar_selector_grey);
+        optionsButton.setBackgroundDrawable(Theme.createBarSelectorDrawable(Theme.ACTION_BAR_AUDIO_SELECTOR_COLOR));
         optionsButton.setImageResource(R.drawable.doc_actions_b);
         optionsButton.setScaleType(ImageView.ScaleType.CENTER);
         addView(optionsButton, LayoutHelper.createFrame(40, 40, (LocaleController.isRTL ? Gravity.LEFT : Gravity.RIGHT) | Gravity.TOP));
-
-        /*ActionBarMenuItem menuItem = new ActionBarMenuItem(context, null, R.drawable.bar_selector_grey);
-        menuItem.setIcon(R.drawable.doc_actions_b);
-        addView(menuItem, LayoutHelper.createFrame(40, 40, (LocaleController.isRTL ? Gravity.LEFT : Gravity.RIGHT) | Gravity.TOP, LocaleController.isRTL ? 40 : 0, 0, LocaleController.isRTL ? 0 : 40, 0));
-        menuItem.addSubItem(1, "test", 0);
-        menuItem.addSubItem(2, "test", 0);
-        menuItem.addSubItem(3, "test", 0);
-        menuItem.addSubItem(4, "test", 0);
-        menuItem.addSubItem(5, "test", 0);
-        menuItem.addSubItem(6, "test", 0);
-        menuItem.addSubItem(7, "test", 0);*/
     }
 
     @Override
@@ -104,13 +93,13 @@ public class StickerSetCell extends FrameLayout {
 
         textView.setText(stickersSet.set.title);
         if (stickersSet.set.disabled) {
-            ViewProxy.setAlpha(textView, 0.5f);
-            ViewProxy.setAlpha(valueTextView, 0.5f);
-            ViewProxy.setAlpha(imageView, 0.5f);
+            textView.setAlpha(0.5f);
+            valueTextView.setAlpha(0.5f);
+            imageView.setAlpha(0.5f);
         } else {
-            ViewProxy.setAlpha(textView, 1.0f);
-            ViewProxy.setAlpha(valueTextView, 1.0f);
-            ViewProxy.setAlpha(imageView, 1.0f);
+            textView.setAlpha(1.0f);
+            valueTextView.setAlpha(1.0f);
+            imageView.setAlpha(1.0f);
         }
         ArrayList<TLRPC.Document> documents = set.documents;
         if (documents != null && !documents.isEmpty()) {

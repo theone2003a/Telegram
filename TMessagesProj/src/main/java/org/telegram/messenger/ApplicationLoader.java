@@ -39,8 +39,6 @@ import org.telegram.ui.Components.ForegroundDetector;
 
 import java.io.File;
 import java.io.RandomAccessFile;
-import java.util.ArrayList;
-import java.util.Locale;
 
 //reza_ak
 import com.path.android.jobqueue.JobManager;
@@ -55,6 +53,8 @@ public class ApplicationLoader extends Application {
     private static boolean isCustomTheme;
     private static final Object sync = new Object();
 
+    private static int serviceMessageColor;
+    private static int serviceSelectedMessageColor;
 
     public static volatile Context applicationContext;
     public static volatile Handler applicationHandler;
@@ -76,7 +76,25 @@ public class ApplicationLoader extends Application {
 
     public static void reloadWallpaper() {
         cachedWallpaper = null;
+        serviceMessageColor = 0;
+        ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Activity.MODE_PRIVATE).edit().remove("serviceMessageColor").commit();
         loadWallpaper();
+    }
+
+    private static void calcBackgroundColor() {
+        int result[] = AndroidUtilities.calcDrawableColor(cachedWallpaper);
+        serviceMessageColor = result[0];
+        serviceSelectedMessageColor = result[1];
+        SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Activity.MODE_PRIVATE);
+        preferences.edit().putInt("serviceMessageColor", serviceMessageColor).putInt("serviceSelectedMessageColor", serviceSelectedMessageColor).commit();
+    }
+
+    public static int getServiceMessageColor() {
+        return serviceMessageColor;
+    }
+
+    public static int getServiceSelectedMessageColor() {
+        return serviceSelectedMessageColor;
     }
 
     public static void loadWallpaper() {
@@ -92,6 +110,8 @@ public class ApplicationLoader extends Application {
                         SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Activity.MODE_PRIVATE);
                         int selectedBackground = preferences.getInt("selectedBackground", 1000001);
                         selectedColor = preferences.getInt("selectedColor", 0);
+                        serviceMessageColor = preferences.getInt("serviceMessageColor", 0);
+                        serviceSelectedMessageColor = preferences.getInt("serviceSelectedMessageColor", 0);
                         if (selectedColor == 0) {
                             if (selectedBackground == 1000001) {
                                 cachedWallpaper = applicationContext.getResources().getDrawable(R.drawable.background_hd);
@@ -115,6 +135,9 @@ public class ApplicationLoader extends Application {
                             selectedColor = -2693905;
                         }
                         cachedWallpaper = new ColorDrawable(selectedColor);
+                    }
+                    if (serviceMessageColor == 0) {
+                        calcBackgroundColor();
                     }
                 }
             }
@@ -227,7 +250,7 @@ public class ApplicationLoader extends Application {
         String configPath = getFilesDirFixed().toString();
 
         try {
-            langCode = LocaleController.getLocaleString(LocaleController.getInstance().getSystemDefaultLocale());
+            langCode = LocaleController.getLocaleStringIso639();
             deviceModel = Build.MANUFACTURER + Build.MODEL;
             PackageInfo pInfo = ApplicationLoader.applicationContext.getPackageManager().getPackageInfo(ApplicationLoader.applicationContext.getPackageName(), 0);
             appVersion = pInfo.versionName + " (" + pInfo.versionCode + ")";
@@ -251,8 +274,11 @@ public class ApplicationLoader extends Application {
             systemVersion = "SDK Unknown";
         }
 
+        SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("Notifications", Activity.MODE_PRIVATE);
+        boolean enablePushConnection = preferences.getBoolean("pushConnection", true);
+
         MessagesController.getInstance();
-        ConnectionsManager.getInstance().init(BuildVars.BUILD_VERSION, TLRPC.LAYER, BuildVars.APP_ID, deviceModel, systemVersion, appVersion, langCode, configPath, FileLog.getNetworkLogPath(), UserConfig.getClientUserId());
+        ConnectionsManager.getInstance().init(BuildVars.BUILD_VERSION, TLRPC.LAYER, BuildVars.APP_ID, deviceModel, systemVersion, appVersion, langCode, configPath, FileLog.getNetworkLogPath(), UserConfig.getClientUserId(), enablePushConnection);
         if (UserConfig.getCurrentUser() != null) {
             MessagesController.getInstance().putUser(UserConfig.getCurrentUser(), true);
             ConnectionsManager.getInstance().applyCountryPortNumber(UserConfig.getCurrentUser().phone);
@@ -275,18 +301,10 @@ public class ApplicationLoader extends Application {
         configureJobManager();
 
 
-        if (Build.VERSION.SDK_INT < 11) {
-            java.lang.System.setProperty("java.net.preferIPv4Stack", "true");
-            java.lang.System.setProperty("java.net.preferIPv6Addresses", "false");
-        }
-
         applicationContext = getApplicationContext();
         NativeLoader.initNativeLibs(ApplicationLoader.applicationContext);
         ConnectionsManager.native_setJava(Build.VERSION.SDK_INT == 14 || Build.VERSION.SDK_INT == 15);
-
-        if (Build.VERSION.SDK_INT >= 14) {
-            new ForegroundDetector(this);
-        }
+        new ForegroundDetector(this);
 
         applicationHandler = new Handler(applicationContext.getMainLooper());
 
@@ -294,22 +312,30 @@ public class ApplicationLoader extends Application {
 
     }
 
+    /*public static void sendRegIdToBackend(final String token) {
+        Utilities.stageQueue.postRunnable(new Runnable() {
+            @Override
+            public void run() {
+                UserConfig.pushString = token;
+                UserConfig.registeredForPush = false;
+                UserConfig.saveConfig(false);
+                if (UserConfig.getClientUserId() != 0) {
+                    AndroidUtilities.runOnUIThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            MessagesController.getInstance().registerForPush(token);
+                        }
+                    });
+                }
+            }
+        });
+    }*/
+
     public static void startPushService() {
         SharedPreferences preferences = applicationContext.getSharedPreferences("Notifications", MODE_PRIVATE);
 
         if (preferences.getBoolean("pushService", true)) {
             applicationContext.startService(new Intent(applicationContext, NotificationsService.class));
-
-            if (android.os.Build.VERSION.SDK_INT >= 19) {
-//                Calendar cal = Calendar.getInstance();
-//                PendingIntent pintent = PendingIntent.getService(applicationContext, 0, new Intent(applicationContext, NotificationsService.class), 0);
-//                AlarmManager alarm = (AlarmManager) applicationContext.getSystemService(Context.ALARM_SERVICE);
-//                alarm.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), 30000, pintent);
-
-                PendingIntent pintent = PendingIntent.getService(applicationContext, 0, new Intent(applicationContext, NotificationsService.class), 0);
-                AlarmManager alarm = (AlarmManager)applicationContext.getSystemService(Context.ALARM_SERVICE);
-                alarm.cancel(pintent);
-            }
         } else {
             stopPushService();
         }
@@ -339,13 +365,18 @@ public class ApplicationLoader extends Application {
             @Override
             public void run() {
                 if (checkPlayServices()) {
-                    if (UserConfig.pushString == null || UserConfig.pushString.length() == 0) {
-                        FileLog.d("tmessages", "GCM Registration not found.");
-                        Intent intent = new Intent(applicationContext, GcmRegistrationIntentService.class);
-                        startService(intent);
-                    } else {
+                    if (UserConfig.pushString != null && UserConfig.pushString.length() != 0) {
                         FileLog.d("tmessages", "GCM regId = " + UserConfig.pushString);
+                    } else {
+                        FileLog.d("tmessages", "GCM Registration not found.");
                     }
+
+                    //if (UserConfig.pushString == null || UserConfig.pushString.length() == 0) {
+                    Intent intent = new Intent(applicationContext, GcmRegistrationIntentService.class);
+                    startService(intent);
+                    //} else {
+                    //    FileLog.d("tmessages", "GCM regId = " + UserConfig.pushString);
+                    //}
                 } else {
                     FileLog.d("tmessages", "No valid Google Play Services APK found.");
                 }
@@ -353,9 +384,42 @@ public class ApplicationLoader extends Application {
         }, 1000);
     }
 
+    /*private void initPlayServices() {
+        AndroidUtilities.runOnUIThread(new Runnable() {
+            @Override
+            public void run() {
+                if (checkPlayServices()) {
+                    if (UserConfig.pushString != null && UserConfig.pushString.length() != 0) {
+                        FileLog.d("tmessages", "GCM regId = " + UserConfig.pushString);
+                    } else {
+                        FileLog.d("tmessages", "GCM Registration not found.");
+                    }
+                    try {
+                        if (!FirebaseApp.getApps(ApplicationLoader.applicationContext).isEmpty()) {
+                            String token = FirebaseInstanceId.getInstance().getToken();
+                            if (token != null) {
+                                sendRegIdToBackend(token);
+                            }
+                        }
+                    } catch (Throwable e) {
+                        FileLog.e("tmessages", e);
+                    }
+                } else {
+                    FileLog.d("tmessages", "No valid Google Play Services APK found.");
+                }
+            }
+        }, 2000);
+    }*/
+
     private boolean checkPlayServices() {
-        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
-        return resultCode == ConnectionResult.SUCCESS;
+        try {
+            int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+            return resultCode == ConnectionResult.SUCCESS;
+        } catch (Exception e) {
+            FileLog.e("tmessages", e);
+        }
+        return true;
+
         /*if (resultCode != ConnectionResult.SUCCESS) {
             if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
                 GooglePlayServicesUtil.getErrorDialog(resultCode, this, PLAY_SERVICES_RESOLUTION_REQUEST).show();

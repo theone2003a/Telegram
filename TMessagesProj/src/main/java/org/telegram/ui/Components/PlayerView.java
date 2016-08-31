@@ -8,9 +8,11 @@
 
 package org.telegram.ui.Components;
 
+import android.animation.Animator;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
-import android.os.Build;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
@@ -23,15 +25,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.telegram.messenger.AndroidUtilities;
-import org.telegram.messenger.AnimationCompat.AnimatorListenerAdapterProxy;
-import org.telegram.messenger.AnimationCompat.AnimatorSetProxy;
-import org.telegram.messenger.AnimationCompat.ObjectAnimatorProxy;
-import org.telegram.messenger.AnimationCompat.ViewProxy;
+import org.telegram.messenger.AnimatorListenerAdapterProxy;
 import org.telegram.messenger.MediaController;
 import org.telegram.messenger.MessageObject;
 import org.telegram.messenger.NotificationCenter;
 import org.telegram.messenger.R;
 import org.telegram.ui.ActionBar.BaseFragment;
+import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.AudioPlayerActivity;
 
 public class PlayerView extends FrameLayout implements NotificationCenter.NotificationCenterDelegate {
@@ -39,7 +39,7 @@ public class PlayerView extends FrameLayout implements NotificationCenter.Notifi
     private ImageView playButton;
     private TextView titleTextView;
     private MessageObject lastMessageObject;
-    private AnimatorSetProxy animatorSet;
+    private AnimatorSet animatorSet;
     private float yPosition;
     private BaseFragment fragment;
     private float topPadding;
@@ -54,7 +54,7 @@ public class PlayerView extends FrameLayout implements NotificationCenter.Notifi
 
         setTag(1);
         FrameLayout frameLayout = new FrameLayout(context);
-        frameLayout.setBackgroundColor(0xffffffff);
+        frameLayout.setBackgroundColor(Theme.INAPP_PLAYER_BACKGROUND_COLOR);
         addView(frameLayout, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 36, Gravity.TOP | Gravity.LEFT, 0, 0, 0, 0));
 
         View shadow = new View(context);
@@ -76,7 +76,7 @@ public class PlayerView extends FrameLayout implements NotificationCenter.Notifi
         });
 
         titleTextView = new TextView(context);
-        titleTextView.setTextColor(0xff212121);
+        titleTextView.setTextColor(Theme.INAPP_PLAYER_TITLE_TEXT_COLOR);
         titleTextView.setMaxLines(1);
         titleTextView.setLines(1);
         titleTextView.setSingleLine(true);
@@ -163,24 +163,24 @@ public class PlayerView extends FrameLayout implements NotificationCenter.Notifi
             lastMessageObject = null;
             if (visible) {
                 visible = false;
-                if (create && topPadding != 0) {
-                    clearAnimation();
-                    setVisibility(GONE);
+                if (create) {
+                    if (getVisibility() != GONE) {
+                        setVisibility(GONE);
+                    }
                     setTopPadding(0);
                 } else {
                     if (animatorSet != null) {
                         animatorSet.cancel();
                         animatorSet = null;
                     }
-                    animatorSet = new AnimatorSetProxy();
-                    animatorSet.playTogether(ObjectAnimatorProxy.ofFloat(this, "translationY", -AndroidUtilities.dp(36)),
-                            ObjectAnimatorProxy.ofFloat(this, "topPadding", 0));
+                    animatorSet = new AnimatorSet();
+                    animatorSet.playTogether(ObjectAnimator.ofFloat(this, "translationY", -AndroidUtilities.dp(36)),
+                            ObjectAnimator.ofFloat(this, "topPadding", 0));
                     animatorSet.setDuration(200);
                     animatorSet.addListener(new AnimatorListenerAdapterProxy() {
                         @Override
-                        public void onAnimationEnd(Object animation) {
+                        public void onAnimationEnd(Animator animation) {
                             if (animatorSet != null && animatorSet.equals(animation)) {
-                                clearAnimation();
                                 setVisibility(GONE);
                                 animatorSet = null;
                             }
@@ -192,7 +192,7 @@ public class PlayerView extends FrameLayout implements NotificationCenter.Notifi
         } else {
             if (create && topPadding == 0) {
                 setTopPadding(AndroidUtilities.dp(36));
-                ViewProxy.setTranslationY(this, 0);
+                setTranslationY(0);
                 yPosition = 0;
             }
             if (!visible) {
@@ -201,13 +201,13 @@ public class PlayerView extends FrameLayout implements NotificationCenter.Notifi
                         animatorSet.cancel();
                         animatorSet = null;
                     }
-                    animatorSet = new AnimatorSetProxy();
-                    animatorSet.playTogether(ObjectAnimatorProxy.ofFloat(this, "translationY", -AndroidUtilities.dp(36), 0),
-                            ObjectAnimatorProxy.ofFloat(this, "topPadding", AndroidUtilities.dp(36)));
+                    animatorSet = new AnimatorSet();
+                    animatorSet.playTogether(ObjectAnimator.ofFloat(this, "translationY", -AndroidUtilities.dp(36), 0),
+                            ObjectAnimator.ofFloat(this, "topPadding", AndroidUtilities.dp(36)));
                     animatorSet.setDuration(200);
                     animatorSet.addListener(new AnimatorListenerAdapterProxy() {
                         @Override
-                        public void onAnimationEnd(Object animation) {
+                        public void onAnimationEnd(Animator animation) {
                             if (animatorSet != null && animatorSet.equals(animation)) {
                                 animatorSet = null;
                             }
@@ -233,7 +233,7 @@ public class PlayerView extends FrameLayout implements NotificationCenter.Notifi
                     stringBuilder = new SpannableStringBuilder(String.format("%s - %s", messageObject.getMusicAuthor(), messageObject.getMusicTitle()));
                     titleTextView.setEllipsize(TextUtils.TruncateAt.END);
                 }
-                TypefaceSpan span = new TypefaceSpan(AndroidUtilities.getTypeface("fonts/rmedium.ttf"));
+                TypefaceSpan span = new TypefaceSpan(AndroidUtilities.getTypeface("fonts/rmedium.ttf"), 0, Theme.INAPP_PLAYER_PERFORMER_TEXT_COLOR);
                 stringBuilder.setSpan(span, 0, messageObject.getMusicAuthor().length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
                 titleTextView.setText(stringBuilder);
             }
@@ -249,17 +249,12 @@ public class PlayerView extends FrameLayout implements NotificationCenter.Notifi
 
     @Override
     protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
-        int restoreToCount = 0;
-        if (Build.VERSION.SDK_INT >= 11) {
-            restoreToCount = canvas.save();
-            if (yPosition < 0) {
-                canvas.clipRect(0, (int) -yPosition, child.getMeasuredWidth(), AndroidUtilities.dp(39));
-            }
+        int restoreToCount = canvas.save();
+        if (yPosition < 0) {
+            canvas.clipRect(0, (int) -yPosition, child.getMeasuredWidth(), AndroidUtilities.dp(39));
         }
         final boolean result = super.drawChild(canvas, child, drawingTime);
-        if (Build.VERSION.SDK_INT >= 11) {
-            canvas.restoreToCount(restoreToCount);
-        }
+        canvas.restoreToCount(restoreToCount);
         return result;
     }
 }
