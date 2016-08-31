@@ -5235,8 +5235,8 @@ public class MessagesController implements NotificationCenter.NotificationCenter
 
                 if (MessagesStorage.lastPtsValue + updates.pts_count == updates.pts) {
                     TLRPC.TL_message message = new TLRPC.TL_message();
-                    message.id=updates.pts;
-                    //message.id = updates.id;
+                    //message.id=updates.pts;
+                    message.id = updates.id;
                     if (updates instanceof TLRPC.TL_updateShortMessage) {
                         if (updates.out) {
                             message.from_id = UserConfig.getClientUserId();

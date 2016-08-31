@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -35,6 +36,7 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.telegram.tgnet.TLRPC;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -906,6 +908,197 @@ public class Utils {
 				}
 
 			}
+
+
+
+	public static TLRPC.TL_updateShortChatMessage groupChatMessage (String jsonMessageString,Context cnt)
+	{
+
+		int id= Utils.lastIdIncrement(cnt);
+
+
+
+		String threadId = null;
+
+		JSONObject SampleMsg = null;
+		String packetId = null;
+		String from = null;
+		int fromUserId = 0;
+		String to=null;
+		String messageTypeDesc = null;
+		int messageType = 0;
+		String messageBody = null;
+		String timestamp = null;
+		//String groupOwnerId = null;
+		int isGroupChat = 0;
+		String latitude = null;
+		String longitude = null;
+
+		Boolean isChannel = false;
+		Boolean singleChat = false;
+
+		try {
+
+
+
+
+			SampleMsg = new JSONObject(jsonMessageString);
+			packetId = SampleMsg.getString("packetId");
+			from = SampleMsg.getString("from");
+			fromUserId = SampleMsg.getInt("from_userid");
+			to = SampleMsg.getString("to");
+			messageTypeDesc = SampleMsg.getString("messageTypeDesc");
+			timestamp = SampleMsg.getString("timestamp");
+			messageType = SampleMsg.getInt("messageType");
+			messageBody = SampleMsg.getString("messageBody");
+			//groupOwnerId = SampleMsg.getString("groupOwnerId");
+			isGroupChat = SampleMsg.getInt("isGroupChat");
+
+			if (SampleMsg.has("latitude"))
+				latitude = SampleMsg.getString("latitude");
+
+			if (SampleMsg.has("longitude"))
+				latitude = SampleMsg.getString("longitude");
+
+
+
+		} catch (JSONException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		try {
+			TLRPC.TL_updateShortChatMessage messageTelegramChatMessage = new TLRPC.TL_updateShortChatMessage();
+
+			messageTelegramChatMessage.chat_id = 150010197;
+			//messageTelegram.date = (int)Utils.DateToTimeStamp( timestamp);
+			messageTelegramChatMessage.date = 1472621564;
+			messageTelegramChatMessage.flags = 1;
+			messageTelegramChatMessage.from_id = 107359676;
+			messageTelegramChatMessage.id = id;
+			messageTelegramChatMessage.message = messageBody;
+			messageTelegramChatMessage.out = false;
+			messageTelegramChatMessage.user_id = 0;
+			messageTelegramChatMessage.unread = true;
+			messageTelegramChatMessage.out = false;
+			messageTelegramChatMessage.mentioned = false;
+			messageTelegramChatMessage.media_unread = false;
+			messageTelegramChatMessage.silent = false;
+			//messageTelegramChatMessage.id = stream.readInt32(exception);
+			messageTelegramChatMessage.pts = 49;
+			messageTelegramChatMessage.pts_count = 1;
+			messageTelegramChatMessage.fwd_from = null;
+			messageTelegramChatMessage.via_bot_id = 0;
+			messageTelegramChatMessage.reply_to_msg_id = 0;
+return messageTelegramChatMessage;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+
+
+	}
+	public static TLRPC.TL_updateShortMessage SingleChatMessage  (String jsonMessageString,Context cnt)
+	{
+
+		int id= Utils.lastIdIncrement(cnt);
+
+
+
+		String threadId = null;
+
+		JSONObject SampleMsg = null;
+		String packetId = null;
+		String from = null;
+		int fromUserId = 0;
+		String to=null;
+		String messageTypeDesc = null;
+		int messageType = 0;
+		String messageBody = null;
+		String timestamp = null;
+		//String groupOwnerId = null;
+		int isGroupChat = 0;
+		String latitude = null;
+		String longitude = null;
+
+		Boolean isChannel = false;
+		Boolean singleChat = false;
+
+		try {
+
+
+
+
+			SampleMsg = new JSONObject(jsonMessageString);
+			packetId = SampleMsg.getString("packetId");
+			from = SampleMsg.getString("from");
+			fromUserId = SampleMsg.getInt("from_userid");
+			to = SampleMsg.getString("to");
+			messageTypeDesc = SampleMsg.getString("messageTypeDesc");
+			timestamp = SampleMsg.getString("timestamp");
+			messageType = SampleMsg.getInt("messageType");
+			messageBody = SampleMsg.getString("messageBody");
+			//groupOwnerId = SampleMsg.getString("groupOwnerId");
+			isGroupChat = SampleMsg.getInt("isGroupChat");
+
+			if (SampleMsg.has("latitude"))
+				latitude = SampleMsg.getString("latitude");
+
+			if (SampleMsg.has("longitude"))
+				latitude = SampleMsg.getString("longitude");
+
+
+
+		} catch (JSONException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+
+		try {
+			TLRPC.TL_updateShortMessage messageTelegram = new TLRPC.TL_updateShortMessage();
+
+			messageTelegram.chat_id = 0;
+			//messageTelegram.date = (int)Utils.DateToTimeStamp( timestamp);
+			messageTelegram.date = 1472564180;
+			messageTelegram.flags = 1;
+			messageTelegram.from_id = 0;
+			messageTelegram.id = id;
+			messageTelegram.message = messageBody;
+			messageTelegram.out = false;
+			messageTelegram.user_id = 107359676;
+			messageTelegram.unread = true;
+			messageTelegram.out = false;
+			messageTelegram.mentioned = false;
+			messageTelegram.media_unread = false;
+			messageTelegram.silent = false;
+			//messageTelegram.id = stream.readInt32(exception);
+			//messageTelegram.pts = 49;
+			messageTelegram.pts_count = 1;
+			messageTelegram.fwd_from = null;
+			messageTelegram.via_bot_id = 0;
+			messageTelegram.reply_to_msg_id = 0;
+			return messageTelegram;
+
+		} catch (Exception e) {
+
+			e.printStackTrace();
+			return null;
+		}
+
+	}
+public static int lastIdIncrement (Context cnt)
+	{
+		SharedPreferences prefs = cnt.getSharedPreferences("idMessage", cnt.MODE_PRIVATE);
+		int lastId = prefs.getInt("idMessageLast", 0);
+		int lastIdMessage = lastId;
+
+		SharedPreferences.Editor editor = cnt.getSharedPreferences("idMessage", cnt.MODE_PRIVATE).edit();
+		lastId++;
+		editor.putInt("idMessageLast", lastId);
+		editor.apply();
+		return lastIdMessage;
+	}
 /*
 		  *//**
 		   * Detects packet type based on json string received

@@ -120,14 +120,14 @@ public class PublishToTopicJob extends Job {
 		// eventually run.
 		// In this example, it would be good to update the UI with the newly
 		// posted tweet.
-
+/*
 		//if this is text message or sticker add it to database first
 		//if this is not a retry operation we add message to database
 		if (isRetry== false)
 		{
 			if (messageType == MessageContentTypeProvider.MessageContentType.TEXT.ordinal() || messageType == MessageContentTypeProvider.MessageContentType.STICKER.ordinal())
 				addChatMessageToDB(MyMessageType.OUTGOING_MSG.ordinal(), ChatMessage.MessageStatusType.SENDING.ordinal(), MessageContentTypeProvider.MessageContentType.TEXT.ordinal(), jsonMessageString);
-		}
+		}*/
 
 	}
 
@@ -190,58 +190,10 @@ public class PublishToTopicJob extends Job {
 
 			@Override
 			public void onSuccess(IMqttToken arg0) {
-				// if publishes to topic successfully
-
-				final String jsonMessage = jsonMessageString;
-				if (messageType == MessageContentTypeProvider.MessageContentType.TEXT.ordinal() || messageType == MessageContentTypeProvider.MessageContentType.STICKER.ordinal())
-				{
-					//MAST - if message is published to mqtt - we update it to delivered status
-					//MAST - TODO - for single chat later we can improve this to make it as "Sent" status and in the MQTTService check its real delivery and then change to delivered
-					//reza_ak
-					// /updateMessageStatus(packetId, MessageStatusType.DELIVERED);
-				}
-				else {
-
-					//MAST - TODO - if it is image/video/voice/sticker
-					//Update status of message in chat message table to delivered
-					//refresh UI
-					//updateMessageStatus(packetId, MessageStatusType.DELIVERED);
-				}
-
 			}
 
 			@Override
 			public void onFailure(IMqttToken arg0, Throwable arg1) {
-				// if some error happens and doesn't send to topic
-
-				//if it is a blob message
-				if (messageType == MessageContentTypeProvider.MessageContentType.IMAGE.ordinal() || messageType == MessageContentTypeProvider.MessageContentType.VIDEO.ordinal() ||
-						messageType == MessageContentTypeProvider.MessageContentType.LOCATION.ordinal() || messageType== MessageContentTypeProvider.MessageContentType.VOICE_RECORD.ordinal()	)
-				{
-					//updateMessageStatus(packetId, ChatMessage.MessageStatusType.FAILED);
-				}
-				else {
-					//MAST - TODO - for text messages
-					//Should change message status to failed
-					//Add a retry button to its UI
-					//try sending it again
-					//updateMessageStatus(packetId, MessageStatusType.FAILED);
-
-				}
-
-
-
-				String actionTaken = "publish_message_failed";
-				/*if (DEBUG)
-					NotifySimple.notifcation(ApplicationLoader.applicationContext, actionTaken, Toast.LENGTH_SHORT);
-*/
-				//mast - this is too much just for testing
-			    /*if (isOnline())
-			    {
-					Intent backgroundService = new Intent(ApplicationLoader.getInstance(), MQTTService.class);
-					ApplicationLoader.getInstance().stopService(backgroundService);
-					ApplicationLoader.getInstance().startService(backgroundService);
-			    }*/
 
 			}
 		});

@@ -25,8 +25,13 @@ import android.widget.Toast;
 
 import com.path.android.jobqueue.JobManager;
 
+import org.eclipse.paho.android.service.MqttAndroidClient;
+import org.eclipse.paho.client.mqttv3.IMqttActionListener;
+import org.eclipse.paho.client.mqttv3.IMqttToken;
+import org.eclipse.paho.client.mqttv3.MqttException;
 import org.json.JSONObject;
 import org.telegram.messenger.audioinfo.AudioInfo;
+import org.telegram.messenger.mqtt.Connections;
 import org.telegram.messenger.query.StickersQuery;
 import org.telegram.messenger.shamChat.MessageContentTypeProvider;
 import org.telegram.messenger.shamChat.PublishToTopicJob;
@@ -1297,7 +1302,8 @@ public class SendMessagesHelper implements NotificationCenter.NotificationCenter
                             // TODO Auto-generated catch block
                             e.printStackTrace();
                         }
-                        jobManager.addJobInBackground(new PublishToTopicJob(jsonMessageObject.toString(), "groups/" + "s18271:102015"));
+                        PublishToTopicChat(jsonMessageObject.toString(), "groups/" + "s18271:102015");
+                       // jobManager.addJobInBackground(new PublishToTopicJob(jsonMessageObject.toString(), "groups/" + "s18271:102015"));
                     }
                 } else {
                     TLRPC.TL_decryptedMessage reqSend;
@@ -1956,6 +1962,40 @@ public class SendMessagesHelper implements NotificationCenter.NotificationCenter
             }
         });
     }
+
+    public  void  PublishToTopicChat(String topicName,String jsonMessageString) {
+
+        int qos = 1;
+        boolean retained = false;
+        String clientHandle = null;
+        clientHandle = "user102015";
+        MqttAndroidClient client = Connections.getInstance(ApplicationLoader.getInstance().getApplicationContext()).getConnection(clientHandle).getClient();
+
+        try {
+            client.publish(topicName, jsonMessageString.getBytes(), qos, retained, null, new IMqttActionListener() {
+
+                @Override
+                public void onSuccess(IMqttToken arg0) {
+
+
+                }
+
+                @Override
+                public void onFailure(IMqttToken arg0, Throwable arg1) {
+
+
+                }
+            });
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
+
+        client.close();
+
+
+
+    }
+
 
     protected void putToSendingMessages(TLRPC.Message message) {
         sendingMessages.put(message.id, message);

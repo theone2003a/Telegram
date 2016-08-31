@@ -120,6 +120,7 @@ public class MQTTService extends Service
     public static final int MQTT_NOTIFICATION_UPDATE  = 2;
 
     public TLRPC.TL_updateShortMessage messageTelegram;
+    public TLRPC.TL_updateShortChatMessage messageTelegramChatMessage;
 
     private Thread.UncaughtExceptionHandler androidDefaultUEH;
     private Thread.UncaughtExceptionHandler handler = new Thread.UncaughtExceptionHandler() {
@@ -1754,7 +1755,7 @@ public class MQTTService extends Service
          */
 
         @Override
-        public void messageArrived(String topic, MqttMessage message) throws Exception {
+        public void messageArrived(String topic, final MqttMessage message) throws Exception {
 
             // we protect against the phone switching off while we're doing this
             //  by requesting a wake lock - we request the minimum possible wake
@@ -1892,45 +1893,50 @@ public class MQTTService extends Service
 //    		Notify.notifcation(context, context.getString(R.string.notification, notifyArgs), intent, R.string.notifyTitle);		
                 }else { //if this is a group message
 
+
+                   int id= Utils.lastIdIncrement(context);
+
+
                     if (packetType.equals("message")){
 
-                        String threadId = null;
 
-                        JSONObject SampleMsg = null;
-                        String packetId = null;
-                        String from = null;
-                        int fromUserId = 0;
                         String to=null;
-                        String messageTypeDesc = null;
-                        int messageType = 0;
-                        String messageBody = null;
-                        String timestamp = null;
-                        //String groupOwnerId = null;
-                        int isGroupChat = 0;
-                        String latitude = null;
-                        String longitude = null;
 
-                        Boolean isChannel = false;
-                        Boolean singleChat = false;
 
                         try {
-                            SampleMsg = new JSONObject(jsonMessageString);
-                            packetId = SampleMsg.getString("packetId");
-                            from = SampleMsg.getString("from");
-                            fromUserId = SampleMsg.getInt("from_userid");
+
+
+
+
+                            JSONObject SampleMsg = new JSONObject(jsonMessageString);
+
                             to = SampleMsg.getString("to");
-                            messageTypeDesc = SampleMsg.getString("messageTypeDesc");
-                            timestamp = SampleMsg.getString("timestamp");
-                            messageType = SampleMsg.getInt("messageType");
-                            messageBody = SampleMsg.getString("messageBody");
-                            //groupOwnerId = SampleMsg.getString("groupOwnerId");
-                            isGroupChat = SampleMsg.getInt("isGroupChat");
 
-                            if (SampleMsg.has("latitude"))
-                                latitude = SampleMsg.getString("latitude");
+                            if(  to.startsWith("s"))
+                            {
+                                 messageTelegram= Utils.SingleChatMessage(jsonMessageString,context);
+                                Utilities.stageQueue.postRunnable(new Runnable() {
+                                    @Override
+                                    public void run() {
 
-                            if (SampleMsg.has("longitude"))
-                                latitude = SampleMsg.getString("longitude");
+
+                                        MessagesController.getInstance().processUpdates((TLRPC.Updates) messageTelegram, false);
+                                    }
+                                });
+
+                            }
+                            else if(  to.startsWith("g"))
+                            {messageTelegramChatMessage=Utils.groupChatMessage(jsonMessageString,context);
+
+                                Utilities.stageQueue.postRunnable(new Runnable() {
+                                    @Override
+                                    public void run() {
+
+                                        MessagesController.getInstance().processUpdates((TLRPC.Updates) messageTelegramChatMessage, false);
+                                    }
+                                });
+
+                            }
 
 
 
@@ -1943,59 +1949,22 @@ public class MQTTService extends Service
 
 
 
-try {
-    messageTelegram = new TLRPC.TL_updateShortMessage();
-
-    messageTelegram.chat_id = 0;
-    //messageTelegram.date = (int)Utils.DateToTimeStamp( timestamp);
-    messageTelegram.date = 1472564180;
-    messageTelegram.flags = 1;
-    messageTelegram.from_id = 0;
-    messageTelegram.id = 1472564180;
-    messageTelegram.message = messageBody;
-    messageTelegram.out = false;
-    messageTelegram.user_id = 107359676;
-    messageTelegram.unread = false;
-    messageTelegram.out = false;
-    messageTelegram.mentioned = false;
-    messageTelegram.media_unread = false;
-    messageTelegram.silent = false;
-    //messageTelegram.id = stream.readInt32(exception);
-    messageTelegram.pts = 49;
-    messageTelegram.pts_count = 1;
-    messageTelegram.fwd_from = null;
-    messageTelegram.via_bot_id = 0;
-    messageTelegram.reply_to_msg_id = 0;
-
-                     /*   if ((flags & 128) != 0) {
-                            int magic = stream.readInt32(exception);
-                            if (magic != 0x1cb5c415) {
-                                if (exception) {
-                                    throw new RuntimeException(String.format("wrong Vector magic, got %x", magic));
-                                }
-                                return;
-                            }
-                            int count = stream.readInt32(exception);
-                            for (int a = 0; a < count; a++) {
-                                MessageEntity object = MessageEntity.TLdeserialize(stream, stream.readInt32(exception), exception);
-                                if (object == null) {
-                                    return;
-                                }
-                                entities.add(object);
-                            }
-                        }*/
-} catch (Exception e) {
-    e.printStackTrace();
-}
 
 
-                        Utilities.stageQueue.postRunnable(new Runnable() {
-                            @Override
-                            public void run() {
 
-                                MessagesController.getInstance().processUpdates((TLRPC.Updates) messageTelegram, false);
-                            }
-                        });
+
+
+//test2
+
+
+
+
+
+
+
+
+
+
 //reza_ak
                         //if it is my own packet just ignore it
                         /*
