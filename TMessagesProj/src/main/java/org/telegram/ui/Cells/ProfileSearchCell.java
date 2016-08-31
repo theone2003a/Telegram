@@ -104,7 +104,7 @@ public class ProfileSearchCell extends BaseCell {
 
             onlinePaint = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
             onlinePaint.setTextSize(AndroidUtilities.dp(16));
-            onlinePaint.setColor(0xff316f9f);
+            onlinePaint.setColor(0xff00BCD4);
 
             offlinePaint = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
             offlinePaint.setTextSize(AndroidUtilities.dp(16));

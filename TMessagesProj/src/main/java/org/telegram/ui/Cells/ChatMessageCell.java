@@ -155,7 +155,7 @@ public class ChatMessageCell extends ChatBaseCell {
             igvideoDrawable = getResources().getDrawable(R.drawable.igvideo);
 
             urlPaint = new Paint();
-            urlPaint.setColor(0x33316f9f);
+            urlPaint.setColor(0x3300BCD4);
         }
     }
 
@@ -1692,7 +1692,7 @@ public class ChatMessageCell extends ChatBaseCell {
                 int startY = textY + currentMessageObject.textHeight + AndroidUtilities.dp(8);
                 int linkPreviewY = startY;
                 int smallImageStartY = 0;
-                replyLinePaint.setColor(currentMessageObject.isOutOwner() ? 0xff8dc97a : 0xff6c9fd2);
+                replyLinePaint.setColor(currentMessageObject.isOutOwner() ? 0xff8dc97a : 0xff4DD0E1);
 
                 canvas.drawRect(textX, linkPreviewY - AndroidUtilities.dp(3), textX + AndroidUtilities.dp(2), linkPreviewY + linkPreviewHeight + AndroidUtilities.dp(3), replyLinePaint);
 

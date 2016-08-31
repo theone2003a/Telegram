@@ -1658,12 +1658,12 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
             });
 
             View lineView = new View(context);
-            lineView.setBackgroundColor(0xff6c9fd2);
+            lineView.setBackgroundColor(0xff4DD0E1);
             pinnedMessageView.addView(lineView, LayoutHelper.createFrame(2, 32, Gravity.LEFT | Gravity.TOP, 8, 8, 0, 0));
 
             pinnedMessageNameTextView = new TextView(context);
             pinnedMessageNameTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
-            pinnedMessageNameTextView.setTextColor(0xff377aae);
+            pinnedMessageNameTextView.setTextColor(0xff00BCD4);
             pinnedMessageNameTextView.setTypeface(AndroidUtilities.getTypeface("fonts/rmedium.ttf"));
             pinnedMessageNameTextView.setSingleLine(true);
             pinnedMessageNameTextView.setEllipsize(TextUtils.TruncateAt.END);
@@ -2219,7 +2219,7 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
 
         replyNameTextView = new TextView(context);
         replyNameTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
-        replyNameTextView.setTextColor(0xff377aae);
+        replyNameTextView.setTextColor(0xff00BCD4);
         replyNameTextView.setTypeface(AndroidUtilities.getTypeface("fonts/rmedium.ttf"));
         replyNameTextView.setSingleLine(true);
         replyNameTextView.setEllipsize(TextUtils.TruncateAt.END);

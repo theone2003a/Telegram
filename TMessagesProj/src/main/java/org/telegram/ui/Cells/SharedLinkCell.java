@@ -100,7 +100,7 @@ public class SharedLinkCell extends FrameLayout {
             paint.setStrokeWidth(1);
 
             urlPaint = new Paint();
-            urlPaint.setColor(0x33316f9f);
+            urlPaint.setColor(0x3300BCD4);
         }
 
         setWillNotDraw(false);
@@ -461,7 +461,7 @@ public class SharedLinkCell extends FrameLayout {
         }
 
         if (!linkLayout.isEmpty()) {
-            descriptionTextPaint.setColor(0xff316f9f);
+            descriptionTextPaint.setColor(0xff00BCD4);
             int offset = 0;
             for (int a = 0; a < linkLayout.size(); a++) {
                 StaticLayout layout = linkLayout.get(a);

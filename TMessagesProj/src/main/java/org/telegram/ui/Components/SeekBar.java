@@ -47,7 +47,7 @@ public class SeekBar {
             innerPaint2.setColor(0xffe4eaf0);
 
             outerPaint2 = new Paint(Paint.ANTI_ALIAS_FLAG);
-            outerPaint2.setColor(0xff4195e5);
+            outerPaint2.setColor(0xff26C6DA);
 
             thumbWidth = AndroidUtilities.dp(24);
             thumbHeight = AndroidUtilities.dp(24);

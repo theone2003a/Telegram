@@ -994,8 +994,8 @@ public class ChatBaseCell extends BaseCell implements MediaController.FileDownlo
                     }
                     replyStartX = currentBackgroundDrawable.getBounds().left + AndroidUtilities.dp(11);
                 } else {
-                    replyLinePaint.setColor(0xff6c9fd2);
-                    replyNamePaint.setColor(0xff377aae);
+                    replyLinePaint.setColor(0xff4DD0E1);
+                    replyNamePaint.setColor(0xff00BCD4);
                     if (currentMessageObject.replyMessageObject != null && currentMessageObject.replyMessageObject.type == 0) {
                         replyTextPaint.setColor(0xff000000);
                     } else {

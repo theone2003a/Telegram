@@ -305,7 +305,7 @@ public class ShareFrameLayout extends FrameLayout {
                 doneButton.setEnabled(false);
                 doneButtonTextView.setText(LocaleController.getString("Send", R.string.Send).toUpperCase());
             } else {
-                doneButtonTextView.setTextColor(0xff517fad);
+                doneButtonTextView.setTextColor(0xff00BCD4);
                 doneButton.setEnabled(true);
                 doneButtonTextView.setText(LocaleController.getString("CopyLink", R.string.CopyLink).toUpperCase());
             }

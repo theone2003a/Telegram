@@ -420,7 +420,7 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
                     final TextView message = new TextView(getParentActivity());
                     message.setText(Html.fromHtml(LocaleController.getString("AskAQuestionInfo", R.string.AskAQuestionInfo)));
                     message.setTextSize(18);
-                    message.setLinkTextColor(0xff316f9f);
+                    message.setLinkTextColor(0xff00BCD4);
                     message.setPadding(AndroidUtilities.dp(8), AndroidUtilities.dp(5), AndroidUtilities.dp(8), AndroidUtilities.dp(6));
                     message.setMovementMethod(new LinkMovementMethodMy());
 
@@ -583,7 +583,7 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
                     BottomSheet.BottomSheetCell cell = new BottomSheet.BottomSheetCell(getParentActivity(), 2);
                     cell.setBackgroundResource(R.drawable.list_selector);
                     cell.setTextAndIcon(LocaleController.getString("Save", R.string.Save).toUpperCase(), 0);
-                    cell.setTextColor(0xff517fad);
+                    cell.setTextColor(0xff00BCD4);
                     cell.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {

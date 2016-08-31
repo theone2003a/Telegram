@@ -21,7 +21,7 @@ public class URLSpanBotCommand extends URLSpanNoUnderline {
     @Override
     public void updateDrawState(TextPaint ds) {
         super.updateDrawState(ds);
-        ds.setColor(enabled ? 0xff316f9f : 0xff000000);
+        ds.setColor(enabled ? 0xff00BCD4 : 0xff000000);
         ds.setUnderlineText(false);
     }
 }

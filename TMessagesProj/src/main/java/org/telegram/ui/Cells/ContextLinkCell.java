@@ -386,7 +386,7 @@ public class ContextLinkCell extends View implements MediaController.FileDownloa
         }
 
         if (linkLayout != null) {
-            descriptionTextPaint.setColor(0xff316f9f);
+            descriptionTextPaint.setColor(0xff00BCD4);
             canvas.save();
             canvas.translate(AndroidUtilities.dp(LocaleController.isRTL ? 8 : AndroidUtilities.leftBaseline), linkY);
             linkLayout.draw(canvas);

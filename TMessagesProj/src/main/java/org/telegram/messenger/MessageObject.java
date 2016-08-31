@@ -87,7 +87,7 @@ public class MessageObject {
         if (textPaint == null) {
             textPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
             textPaint.setColor(0xff000000);
-            textPaint.linkColor = 0xff316f9f;
+            textPaint.linkColor = 0xff00BCD4;
         }
 
         textPaint.setTextSize(AndroidUtilities.dp(MessagesController.getInstance().fontSize));
@@ -441,7 +441,7 @@ public class MessageObject {
         if (textPaint == null) {
             textPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
             textPaint.setColor(0xff000000);
-            textPaint.linkColor = 0xff316f9f;
+            textPaint.linkColor = 0xff00BCD4;
             textPaint.setTextSize(AndroidUtilities.dp(MessagesController.getInstance().fontSize));
         }
         return textPaint;

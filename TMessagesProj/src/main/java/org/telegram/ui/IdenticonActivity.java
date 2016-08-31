@@ -114,7 +114,7 @@ public class IdenticonActivity extends BaseFragment {
         textView.setClickable(true);
         textView.setMovementMethod(new LinkMovementMethodMy());
         //textView.setAutoLinkMask(Linkify.WEB_URLS);
-        textView.setLinkTextColor(0xff316f9f);
+        textView.setLinkTextColor(0xff00BCD4);
         textView.setGravity(Gravity.CENTER);
         frameLayout.addView(textView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
 
