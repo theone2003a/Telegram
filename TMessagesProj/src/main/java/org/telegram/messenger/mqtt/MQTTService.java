@@ -111,7 +111,7 @@ public class MQTTService extends Service
     // constants used to tell the Activity UI the connection status
     public static final String MQTT_STATUS_INTENT = "com.rokhgroup.mqtt.STATUS";
     public static final String MQTT_STATUS_MSG    = "com.rokhgroup.mqtt.STATUS_MSG";
-    String userIdPub="102015";
+    String userIdPub="14";
     // constant used internally to schedule the next ping event
     public static final String MQTT_PING_ACTION = "com.rokhgroup.mqtt.PING";
 
@@ -302,7 +302,7 @@ public class MQTTService extends Service
 
         brokerHostName = Constant.MqttTcpHost;
         //reza_ak
-        mqttClientId ="102015";
+        mqttClientId ="14";
                 //SHAMChatApplication.getConfig().getUserId();
         brokerPortNumber = Integer.valueOf(Constant.MqttTcpPort);
 
@@ -1234,7 +1234,7 @@ public class MQTTService extends Service
 
                 if (DEBUG) notifyUser2("ping to server");
                 //reza_ak
-                String userId	= "102015";
+                String userId	= "14";
                         //SHAMChatApplication.getConfig().getUserId();
                 String topic = "events/"+userId;
                 String pingMessage = "ping";
@@ -1632,7 +1632,7 @@ public class MQTTService extends Service
             this.context = context;
             this.clientHandle = clientHandle;
             //reza_ak
-            CURRENT_USER_ID	= "102015";
+            CURRENT_USER_ID	= "14";
                     //SHAMChatApplication.getConfig().getUserId();
         }
 
@@ -2125,7 +2125,7 @@ public class MQTTService extends Service
 
             String groupId = to;
 //reza_ak
-            String threadOwner = "102015";
+            String threadOwner = "14";
                     //SHAMChatApplication.getConfig().getUserId();
 
             //String threadId = threadId;
@@ -2413,7 +2413,7 @@ public class MQTTService extends Service
             me = UserProvider.userFromCursor(cursor);
             cursor.close();*/
 
-            String clientId = "102015";
+            String clientId = "14";
 
             String[] actionArgs = new String[1];
 

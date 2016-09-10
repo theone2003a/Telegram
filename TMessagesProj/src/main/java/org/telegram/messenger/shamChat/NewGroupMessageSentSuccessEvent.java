@@ -50,7 +50,7 @@ public class NewGroupMessageSentSuccessEvent {
 			//groupOwnerId = SampleMsg.getString("groupOwnerId");					
 			isGroupChat = SampleMsg.getInt("isGroupChat");					
 			//reza_ak
-			String threadOwner = "102015";
+			String threadOwner = "14";
 			threadId = threadOwner + "-" + to; 
 				
 			} catch (JSONException e1) {

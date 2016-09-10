@@ -1247,4 +1247,10 @@
     <string name="notifyTitle">MQTT Message Received</string>
     <string name="notifyTitle_connectionLost">MQTT Client Has Lost Connection</string>
 
+    <!-- String for salam -->
+    <string name="network_error">Please connect to internet and try again!</string>
+    <string name="invalid_phone_number">Invalid phone number</string>
+
+
+
 </resources>

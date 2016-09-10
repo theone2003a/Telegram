@@ -34,6 +34,7 @@ import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.json.JSONObject;
 import org.telegram.messenger.audioinfo.AudioInfo;
+import org.telegram.messenger.mqtt.Connection;
 import org.telegram.messenger.mqtt.Connections;
 import org.telegram.messenger.query.DraftQuery;
 import org.telegram.messenger.query.SearchQuery;
@@ -1503,7 +1504,7 @@ public class SendMessagesHelper implements NotificationCenter.NotificationCenter
                             reqSend.entities = entities;
                             reqSend.flags |= 8;
                         }
-                        performSendMessageRequest(reqSend, newMsgObj, null);
+                        //performSendMessageRequest(reqSend, newMsgObj, null);
                         performSendMessageRequestSalam(newMsgObj,null);
                         if (retryMessageObject == null) {
                             DraftQuery.cleanDraft(peer, false);
@@ -2227,7 +2228,9 @@ public class SendMessagesHelper implements NotificationCenter.NotificationCenter
             e.printStackTrace();
         }
 
-        MqttAndroidClient client = Connections.getInstance(ApplicationLoader.getInstance().getApplicationContext()).getConnection(clientHandle).getClient();
+         Connection c = Connections.getInstance(ApplicationLoader.getInstance().getApplicationContext()).getConnection(clientHandle);
+        //if (c!=null)
+         MqttAndroidClient client = c.getClient();
 
         try {
 
