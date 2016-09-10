@@ -119,9 +119,11 @@ public class UserConfig {
     }
 
     public static boolean isClientActivated() {
-        synchronized (sync) {
-            return currentUser != null;
-        }
+      if (ApplicationLoader.getUserId() == null) {
+          return  false ;
+      }else {
+           return true ;
+      }
     }
 
     public static int getClientUserId() {

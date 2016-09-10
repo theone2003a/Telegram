@@ -27,6 +27,7 @@ import android.os.Parcelable;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.ActionMode;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -1026,6 +1027,9 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
             if (!pushOpened && !isNew) {
                 if (AndroidUtilities.isTablet()) {
                     if (!UserConfig.isClientActivated()) {
+
+
+
                         if (layersActionBarLayout.fragmentsStack.isEmpty()) {
                             layersActionBarLayout.addFragmentToStack(new LoginActivity());
                             drawerLayoutContainer.setAllowOpenDrawer(false, false);
@@ -1753,32 +1757,9 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
     @SuppressWarnings("unchecked")
     public void didReceivedNotification(int id, Object... args) {
         if (id == NotificationCenter.appDidLogout) {
-            if (drawerLayoutAdapter != null) {
-                drawerLayoutAdapter.notifyDataSetChanged();
-            }
-            for (BaseFragment fragment : actionBarLayout.fragmentsStack) {
-                fragment.onFragmentDestroy();
-            }
-            actionBarLayout.fragmentsStack.clear();
-            if (AndroidUtilities.isTablet()) {
-                for (BaseFragment fragment : layersActionBarLayout.fragmentsStack) {
-                    fragment.onFragmentDestroy();
-                }
-                layersActionBarLayout.fragmentsStack.clear();
-                for (BaseFragment fragment : rightActionBarLayout.fragmentsStack) {
-                    fragment.onFragmentDestroy();
-                }
-                rightActionBarLayout.fragmentsStack.clear();
-            }
-            Intent intent2 = new Intent(this, IntroActivity.class);
-            startActivity(intent2);
-            onFinish();
-            finish();
+
         } else if (id == NotificationCenter.closeOtherAppActivities) {
-            if (args[0] != this) {
-                onFinish();
-                finish();
-            }
+
         } else if (id == NotificationCenter.didUpdatedConnectionState) {
             int state = ConnectionsManager.getInstance().getConnectionState();
             if (currentConnectionState != state) {

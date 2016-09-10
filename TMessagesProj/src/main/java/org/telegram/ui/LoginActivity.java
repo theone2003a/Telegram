@@ -63,6 +63,7 @@ import org.telegram.messenger.FileLog;
 import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.R;
 import org.telegram.messenger.mqtt.MQTTService;
+import org.telegram.messenger.shamChat.Components.msaOkHttp;
 import org.telegram.messenger.shamChat.Constant;
 import org.telegram.tgnet.ConnectionsManager;
 import org.telegram.tgnet.RequestDelegate;
@@ -891,6 +892,7 @@ public class LoginActivity extends BaseFragment {
 
         @Override
         public void onNextPressed() {
+
             if (getParentActivity() == null || nextPressed) {
                 return;
             }
@@ -968,101 +970,53 @@ public class LoginActivity extends BaseFragment {
             nextPressed = true;
             needShowProgress();
 
-            OkHttpClient client = new OkHttpClient.Builder()
-                    .connectTimeout(240, TimeUnit.SECONDS)
-                    .writeTimeout(240, TimeUnit.SECONDS)
-                    .readTimeout(240, TimeUnit.SECONDS)
-                    .build();
 
-            RequestBody formBody = new FormBody.Builder()
-                    .add("phone", phone)
-                    .build();
+            new msaOkHttp().with().url(Constant.RegisterPhoneNumber)
+                    .addPostParams("phone" , phone)
+                    .setOnResalt(new msaOkHttp.onResalt() {
+                        @Override
+                        public void onComplete(String result) throws Throwable {
+                            nextPressed = false;
+                            JSONObject serverResponseJsonObject = new JSONObject(result);
+                            String code = serverResponseJsonObject.getString("code");
+                            if (code.equals("R109")) throw new IOException("R109");
 
-            Request request = new Request.Builder()
-                    .url(Constant.RegisterPhoneNumber)
-                    .post(formBody)
-                    .build();
 
-            client.newCall(request).enqueue(new Callback() {
+                            TLRPC.TL_auth_sentCode response = new TLRPC.TL_auth_sentCode();
+                            response.flags = 7;
+                            response.next_type = new TLRPC.TL_auth_codeTypeCall();
+                            response.next_type.disableFree = false;
+                            response.phone_code_hash = "43ae35c041aca0588d";
+                            response.phone_registered = true;
+                            response.timeout = 240;
+                            response.type = new TLRPC.TL_auth_sentCodeTypeSms();
+                            response.type.length = 4;
+                            response.type.disableFree = false;
+                            response.disableFree = false;
 
-                @Override
-                public void onFailure(Call call, IOException e) {
-                    AndroidUtilities.runOnUIThread(new Runnable() {
-                       @Override
-                        public void run() {
-                            //what to do on error?
-                           needShowAlert(LocaleController.getString("AppName", R.string.AppName), LocaleController.getString("network", R.string.network_error));
-                           needHideProgress();
+                            fillNextCodeParams(params, (TLRPC.TL_auth_sentCode) response);
+                            needHideProgress();
+
+
+
                         }
-                    });
-                    e.printStackTrace();
-                }
 
-                @Override
-                public void onResponse(Call call, Response response){
-                    //response = client.newCall(request).execute();
+                        @Override
+                        public void onFailure(Throwable throwable, msaOkHttp Con) {
 
-                    String stringResponse = null;
 
-                    try {
-                        // check if request was successful
-                        if (!response.isSuccessful()) throw new IOException("network");
-
-                        stringResponse = response.body().string();
-                        response.body().close();
-
-                        System.out.println(stringResponse);
-                        JSONObject serverResponseJsonObject = new JSONObject(stringResponse);
-                        // We get the status attribute of the json response
-                        int status = serverResponseJsonObject.getInt("status");
-                        String code = serverResponseJsonObject.getString("code");
-
-                        if (status != 200) throw new IOException("status");
-                        if (code.equals("R109")) throw new IOException("R109");
-
-                        AndroidUtilities.runOnUIThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                    //on success
-                                    TLRPC.TL_auth_sentCode response = new TLRPC.TL_auth_sentCode();
-                                    response.flags = 7;
-                                    response.next_type = new TLRPC.TL_auth_codeTypeCall();
-                                    response.next_type.disableFree = false;
-                                    response.phone_code_hash = "43ae35c041aca0588d";
-                                    response.phone_registered = true;
-                                    response.timeout = 240;
-                                    response.type = new TLRPC.TL_auth_sentCodeTypeSms();
-                                    response.type.length = 4;
-                                    response.type.disableFree = false;
-                                    response.disableFree = false;
-
-                                    fillNextCodeParams(params, (TLRPC.TL_auth_sentCode) response);
-                                     needHideProgress();
+                            if (throwable.getMessage().equals("R109") || throwable.getMessage().equals("status")) {
+                                needShowAlert(LocaleController.getString("AppName", R.string.AppName), LocaleController.getString("invalid_phone_number", R.string.invalid_phone_number));
+                            } else if (throwable.getMessage().equals("network")) {
+                                needShowAlert(LocaleController.getString("AppName", R.string.AppName), LocaleController.getString("network", R.string.network_error));
+                            }else {
+                                needShowAlert(LocaleController.getString("AppName", R.string.AppName), LocaleController.getString("network", R.string.network_error));
                             }
-                        });
+                            needHideProgress();
 
-                    } catch (final Exception e) {
+                        }
+                    }).Run();
 
-                        AndroidUtilities.runOnUIThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                //what to do on error?
-
-                                if (e.getMessage().equals("R109") || e.getMessage().equals("status")) {
-                                    needShowAlert(LocaleController.getString("AppName", R.string.AppName), LocaleController.getString("invalid_phone_number", R.string.invalid_phone_number));
-                                } else if (e.getMessage().equals("network")) {
-                                    needShowAlert(LocaleController.getString("AppName", R.string.AppName), LocaleController.getString("network", R.string.network_error));
-                                }
-                                needHideProgress();
-                            }
-                        });
-
-                        e.printStackTrace();
-                    }
-
-                }
-
-            });
 
 
 /*            ConnectionsManager.getInstance().sendRequest(req, new RequestDelegate() {
@@ -1301,23 +1255,7 @@ public class LoginActivity extends BaseFragment {
                     if (nextPressed) {
                         return;
                     }
-                    if (nextType != 0 && nextType != 4) {
-                        resendCode();
-                    } else {
-                        try {
-                            PackageInfo pInfo = ApplicationLoader.applicationContext.getPackageManager().getPackageInfo(ApplicationLoader.applicationContext.getPackageName(), 0);
-                            String version = String.format(Locale.US, "%s (%d)", pInfo.versionName, pInfo.versionCode);
-
-                            Intent mailer = new Intent(Intent.ACTION_SEND);
-                            mailer.setType("message/rfc822");
-                            mailer.putExtra(Intent.EXTRA_EMAIL, new String[]{"sms@stel.com"});
-                            mailer.putExtra(Intent.EXTRA_SUBJECT, "Android registration/login issue " + version + " " + emailPhone);
-                            mailer.putExtra(Intent.EXTRA_TEXT, "Phone: " + requestPhone + "\nApp version: " + version + "\nOS version: SDK " + Build.VERSION.SDK_INT + "\nDevice Name: " + Build.MANUFACTURER + Build.MODEL + "\nLocale: " + Locale.getDefault() + "\nError: " + lastError);
-                            getContext().startActivity(Intent.createChooser(mailer, "Send email..."));
-                        } catch (Exception e) {
-                            needShowAlert(LocaleController.getString("AppName", R.string.AppName), LocaleController.getString("NoMailInstalled", R.string.NoMailInstalled));
-                        }
-                    }
+                    resendCode();
                 }
             });
 
@@ -1336,7 +1274,8 @@ public class LoginActivity extends BaseFragment {
             wrongNumber.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    TLRPC.TL_auth_cancelCode req = new TLRPC.TL_auth_cancelCode();
+
+                   /** TLRPC.TL_auth_cancelCode req = new TLRPC.TL_auth_cancelCode();
                     req.phone_number = requestPhone;
                     req.phone_code_hash = phoneHash;
                     ConnectionsManager.getInstance().sendRequest(req, new RequestDelegate() {
@@ -1345,6 +1284,8 @@ public class LoginActivity extends BaseFragment {
 
                         }
                     }, ConnectionsManager.RequestFlagFailOnServerErrors | ConnectionsManager.RequestFlagWithoutLogin);
+                    **/
+                    nextPressed = false ;
                     onBackPressed();
                     setPage(0, true, null, true);
                 }
@@ -1365,7 +1306,50 @@ public class LoginActivity extends BaseFragment {
             req.phone_code_hash = phoneHash;
 
 
-            ConnectionsManager.getInstance().sendRequest(req, new RequestDelegate() {
+            new msaOkHttp().with().url(Constant.RegisterPhoneResend)
+                    .addPostParams("phone" , requestPhone)
+                    .setOnResalt(new msaOkHttp.onResalt() {
+                        @Override
+                        public void onComplete(String result) throws Throwable {
+
+                            nextPressed = false;
+                            JSONObject serverResponseJsonObject = new JSONObject(result);
+                            String code = serverResponseJsonObject.getString("code");
+                            if (code.equals("R109")) throw new IOException("R109");
+
+
+                            TLRPC.TL_auth_sentCode response = new TLRPC.TL_auth_sentCode();
+                            response.flags = 7;
+                            response.next_type = new TLRPC.TL_auth_codeTypeCall();
+                            response.next_type.disableFree = false;
+                            response.phone_code_hash = "43ae35c041aca0588d";
+                            response.phone_registered = true;
+                            response.timeout = 240;
+                            response.type = new TLRPC.TL_auth_sentCodeTypeSms();
+                            response.type.length = 4;
+                            response.type.disableFree = false;
+                            response.disableFree = false;
+
+                            fillNextCodeParams(params, (TLRPC.TL_auth_sentCode) response);
+                            needHideProgress();
+
+                        }
+
+                        @Override
+                        public void onFailure(Throwable throwable, msaOkHttp Conn) {
+                            if (throwable.getMessage().equals("R109") || throwable.getMessage().equals("status")) {
+                                needShowAlert(LocaleController.getString("AppName", R.string.AppName), LocaleController.getString("invalid_phone_number", R.string.invalid_phone_number));
+                            } else if (throwable.getMessage().equals("network")) {
+                                needShowAlert(LocaleController.getString("AppName", R.string.AppName), LocaleController.getString("network", R.string.network_error));
+                            }else {
+                                needShowAlert(LocaleController.getString("AppName", R.string.AppName), LocaleController.getString("network", R.string.network_error));
+                            }
+                            needHideProgress();
+                        }
+                    }).Run();
+
+
+          /**  ConnectionsManager.getInstance().sendRequest(req, new RequestDelegate() {
                 @Override
                 public void run(final TLObject response, final TLRPC.TL_error error) {
                     AndroidUtilities.runOnUIThread(new Runnable() {
@@ -1396,6 +1380,7 @@ public class LoginActivity extends BaseFragment {
                     });
                 }
             }, ConnectionsManager.RequestFlagFailOnServerErrors | ConnectionsManager.RequestFlagWithoutLogin);
+            **/
         }
 
         @Override
@@ -1472,7 +1457,7 @@ public class LoginActivity extends BaseFragment {
                 problemText.setVisibility(VISIBLE);
                 timeText.setVisibility(GONE);
             } else if (currentType == 3 && (nextType == 4 || nextType == 2)) {
-                problemText.setVisibility(GONE);
+                problemText.setVisibility(VISIBLE);
                 timeText.setVisibility(VISIBLE);
                 if (nextType == 4) {
                     timeText.setText(LocaleController.formatString("CallText", R.string.CallText, 1, 0));
@@ -1483,7 +1468,7 @@ public class LoginActivity extends BaseFragment {
             } else if (currentType == 2 && (nextType == 4 || nextType == 3)) {
                 timeText.setVisibility(VISIBLE);
                 timeText.setText(LocaleController.formatString("CallText", R.string.CallText, 2, 0));
-                problemText.setVisibility(time < 1000 ? VISIBLE : GONE);
+                problemText.setVisibility( VISIBLE );
                 createTimer();
             } else {
                 timeText.setVisibility(GONE);
@@ -1640,185 +1625,116 @@ public class LoginActivity extends BaseFragment {
             req.phone_code_hash = phoneHash;
             destroyTimer();
             needShowProgress();
-
-            OkHttpClient client = new OkHttpClient.Builder()
-                    .connectTimeout(240, TimeUnit.SECONDS)
-                    .writeTimeout(240, TimeUnit.SECONDS)
-                    .readTimeout(240, TimeUnit.SECONDS)
-                    .build();
-
-            RequestBody formBody = new FormBody.Builder()
-                    .add("phone", requestPhone)
-                    .add("code", codeField.getText().toString())
-                    .build();
-
-            Request request = new Request.Builder()
-                    .url(Constant.RegisterPhoneVerify)
-                    .post(formBody)
-                    .build();
-
-            client.newCall(request).enqueue(new Callback() {
-
-                @Override
-                public void onFailure(Call call, IOException e) {
-                    AndroidUtilities.runOnUIThread(new Runnable() {
+            new msaOkHttp().with().url(Constant.RegisterPhoneVerify)
+                    .addPostParams("phone" , requestPhone)
+                    .addPostParams("code" , codeField.getText().toString() )
+                    .setOnResalt(new msaOkHttp.onResalt() {
                         @Override
-                        public void run() {
+                        public void onComplete(String result) throws Throwable {
                             nextPressed = false;
-                            //what to do on error?
-                            needShowAlert(LocaleController.getString("AppName", R.string.AppName), LocaleController.getString("network", R.string.network_error));
+
+
+                            final JSONObject serverResponseJsonObject = new JSONObject(result);
+                            final String code = serverResponseJsonObject.getString("code");
+                            if (code.equals("R105")) throw new IOException("R105");
+
+                            needHideProgress();
+                            //if previously registered user
+                            // we already have username
+                            if   (code.equals("R101")) {
+                                String token;
+                                String avatar;
+                                String userName = null;
+                                int socialId;
+                                int jid = 0;
+
+                                try {
+                                    token = serverResponseJsonObject.getString("code");
+                                    avatar = serverResponseJsonObject.getString("user_avatar");
+                                    socialId = serverResponseJsonObject.getInt("social_id");
+                                    userName = serverResponseJsonObject.getString("username");
+                                    jid = serverResponseJsonObject.getInt("id");
+                                } catch (Exception e) {}
+
+                                ApplicationLoader.setUserId(String.valueOf(jid));
+
+                                TLRPC.TL_auth_authorization res = new TLRPC.TL_auth_authorization();
+                                res.user = new TLRPC.TL_user();
+                                try {
+                                    res.user.access_hash = 12345678910L;
+                                } catch (Exception e ) {
+                                    e.printStackTrace();
+                                }
+                                res.user.bot = false;
+                                res.user.bot_chat_history = false;
+                                res.user.bot_info_version = 0;
+                                res.user.bot_inline_geo = false;
+                                res.user.bot_inline_placeholder = null;
+                                res.user.bot_nochats = false;
+                                res.user.contact = true;
+                                res.user.deleted = false;
+                                res.user.explicit_content = false;
+                                res.user.first_name = null;
+                                res.user.flags = 3167;
+                                res.user.id = jid;
+                                res.user.inactive = false;
+                                res.user.last_name = null;
+                                res.user.min = false;
+                                res.user.mutual_contact = false;
+                                res.user.phone = phone;
+                                res.user.restricted = false;
+                                res.user.restriction_reason = null;
+                                res.user.self = true;
+                                res.user.status = new TLRPC.TL_userStatusOffline();
+                                res.user.status.disableFree = false;
+                                res.user.status.expires = 0;
+                                res.user.username = userName;
+                                res.user.verified = false;
+                                res.user.disableFree = false;
+                                res.disableFree = false;
+
+
+                                ConnectionsManager.getInstance().setUserId(res.user.id);
+                                destroyTimer();
+                                destroyCodeTimer();
+                                UserConfig.clearConfig();
+                                MessagesController.getInstance().cleanup();
+                                UserConfig.setCurrentUser(res.user);
+                                UserConfig.saveConfig(true);
+                                MessagesStorage.getInstance().cleanup(true);
+                                ArrayList<TLRPC.User> users = new ArrayList<>();
+                                users.add(res.user);
+                                MessagesStorage.getInstance().putUsersAndChats(users, null, true, true);
+                                MessagesController.getInstance().putUser(res.user, false);
+                                ContactsController.getInstance().checkAppAccount();
+                                MessagesController.getInstance().getBlockedUsers(true);
+
+                                //mast - start the mqtt background service to handle messaging stuff and stay running
+                                //mast - mqtt our own background service
+                                //mast - this is first run after registration
+                                //mast - for next runs we use "LaunchActivity.java"
+                                Intent backgroundService = new Intent(ApplicationLoader.getInstance(), MQTTService.class);
+                                ApplicationLoader.getInstance().startService(backgroundService);
+                                needFinishActivity();
+
+                            }
+                        }
+                        @Override
+                        public void onFailure(Throwable throwable, msaOkHttp Con) {
+                            nextPressed = false;
+                            if (throwable.getMessage().equals("R105") || throwable.getMessage().equals("status")) {
+                                needShowAlert(LocaleController.getString("AppName", R.string.AppName), LocaleController.getString("InvalidCode", R.string.InvalidCode));
+                            } else if (throwable.getMessage().equals("network")) {
+                                needShowAlert(LocaleController.getString("AppName", R.string.AppName), LocaleController.getString("network", R.string.network_error));
+                            }else {
+                                needShowAlert(LocaleController.getString("AppName", R.string.AppName), LocaleController.getString("network", R.string.network_error));
+                                needHideProgress();
+                            }
                             needHideProgress();
                         }
-                    });
-                    e.printStackTrace();
-                }
-
-                @Override
-                public void onResponse(Call call, final Response response){
-                    //response = client.newCall(request).execute();
-                    nextPressed = false;
-
-                    String stringResponse = null;
-
-                    try {
-                        // check if request was successful
-                        if (!response.isSuccessful()) throw new IOException("network");
-
-                        stringResponse = response.body().string();
-                        response.body().close();
-
-                        System.out.println(stringResponse);
-                        final JSONObject serverResponseJsonObject = new JSONObject(stringResponse);
-                        // We get the status attribute of the json response
-                        int status = serverResponseJsonObject.getInt("status");
-                        final String code = serverResponseJsonObject.getString("code");
-
-                        if (status != 200) throw new IOException("status");
-                        if (code.equals("R105")) throw new IOException("R105");
-
-                        AndroidUtilities.runOnUIThread(new Runnable() {
-                            @Override
-                            public void run() {
-/*
-                                {
-                                    "username": "mj6969",
-                                        "status": 200,
-                                        "token": "3df34f3bf9451f56a414c144b61f9aaf1117e640",
-                                        "code": "R101",
-                                        "user_avatar": "/media/cache2/2b/fa/2bfafaab0c0bc4b1b313574c5fb87a74.jpg",
-                                        "success": true,
-                                        "social_id": 7,
-                                        "id": 14,
-                                        "last_seen": "2016-08-22 14:23:29"
-                                }
-*/
-
-                                //on success
-                                needHideProgress();
-                                //if previously registered user
-                                // we already have username
-                                if   (code.equals("R101")) {
-                                    String token;
-                                    String avatar;
-                                    String userName = null;
-                                    int socialId;
-                                    int jid = 0;
-
-                                    try {
-                                         token = serverResponseJsonObject.getString("code");
-                                         avatar = serverResponseJsonObject.getString("user_avatar");
-                                         socialId = serverResponseJsonObject.getInt("social_id");
-                                        userName = serverResponseJsonObject.getString("username");
-                                         jid = serverResponseJsonObject.getInt("id");
-                                    } catch (Exception e) {}
-
-                                    TLRPC.TL_auth_authorization res = new TLRPC.TL_auth_authorization();
-                                    res.user = new TLRPC.TL_user();
-                                    try {
-                                        res.user.access_hash = 12345678910L;
-                                    } catch (Exception e ) {
-                                        e.printStackTrace();
-                                    }
-                                    res.user.bot = false;
-                                    res.user.bot_chat_history = false;
-                                    res.user.bot_info_version = 0;
-                                    res.user.bot_inline_geo = false;
-                                    res.user.bot_inline_placeholder = null;
-                                    res.user.bot_nochats = false;
-                                    res.user.contact = true;
-                                    res.user.deleted = false;
-                                    res.user.explicit_content = false;
-                                    res.user.first_name = null;
-                                    res.user.flags = 3167;
-                                    res.user.id = jid;
-                                    res.user.inactive = false;
-                                    res.user.last_name = null;
-                                    res.user.min = false;
-                                    res.user.mutual_contact = false;
-                                    res.user.phone = phone;
-                                    res.user.restricted = false;
-                                    res.user.restriction_reason = null;
-                                    res.user.self = true;
-                                    res.user.status = new TLRPC.TL_userStatusOffline();
-                                    res.user.status.disableFree = false;
-                                    res.user.status.expires = 0;
-                                    res.user.username = userName;
-                                    res.user.verified = false;
-                                    res.user.disableFree = false;
-                                    res.disableFree = false;
+                    }).Run();
 
 
-                                    ConnectionsManager.getInstance().setUserId(res.user.id);
-                                    destroyTimer();
-                                    destroyCodeTimer();
-                                    UserConfig.clearConfig();
-                                    MessagesController.getInstance().cleanup();
-                                    UserConfig.setCurrentUser(res.user);
-                                    UserConfig.saveConfig(true);
-                                    MessagesStorage.getInstance().cleanup(true);
-                                    ArrayList<TLRPC.User> users = new ArrayList<>();
-                                    users.add(res.user);
-                                    MessagesStorage.getInstance().putUsersAndChats(users, null, true, true);
-                                    MessagesController.getInstance().putUser(res.user, false);
-                                    ContactsController.getInstance().checkAppAccount();
-                                    MessagesController.getInstance().getBlockedUsers(true);
-
-                                    //mast - start the mqtt background service to handle messaging stuff and stay running
-                                    //mast - mqtt our own background service
-                                    //mast - this is first run after registration
-                                    //mast - for next runs we use "LaunchActivity.java"
-                                    Intent backgroundService = new Intent(ApplicationLoader.getInstance(), MQTTService.class);
-                                    ApplicationLoader.getInstance().startService(backgroundService);
-
-                                    needFinishActivity();
-                                }
-
-                            }
-                        });
-
-                    } catch (final Exception e) {
-
-                        AndroidUtilities.runOnUIThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                //what to do on error?
-                                nextPressed = false;
-
-                                if (e.getMessage().equals("R105") || e.getMessage().equals("status")) {
-                                    needShowAlert(LocaleController.getString("AppName", R.string.AppName), LocaleController.getString("InvalidCode", R.string.InvalidCode));
-                                } else if (e.getMessage().equals("network")) {
-                                    needShowAlert(LocaleController.getString("AppName", R.string.AppName), LocaleController.getString("network", R.string.network_error));
-                                }
-                                needHideProgress();
-                            }
-                        });
-
-                        e.printStackTrace();
-                    }
-
-                }
-
-            });
 
  /*           ConnectionsManager.getInstance().sendRequest(req, new RequestDelegate() {
                 @Override

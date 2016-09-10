@@ -25,6 +25,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
 import android.os.PowerManager;
+import android.preference.PreferenceManager;
 import android.util.Base64;
 import android.util.Log;
 
@@ -59,7 +60,7 @@ public class ApplicationLoader extends Application {
     public static volatile Context applicationContext;
     public static volatile Handler applicationHandler;
     private static volatile boolean applicationInited = false;
-
+    static public SharedPreferences preferenceManager;
     public static volatile boolean isScreenOn = false;
     public static volatile boolean mainInterfacePaused = true;
 //reza_ak
@@ -300,6 +301,7 @@ public class ApplicationLoader extends Application {
         //reza_ak
         configureJobManager();
 
+        preferenceManager = PreferenceManager.getDefaultSharedPreferences(this);
 
         applicationContext = getApplicationContext();
         NativeLoader.initNativeLibs(ApplicationLoader.applicationContext);
@@ -478,6 +480,23 @@ public class ApplicationLoader extends Application {
             throw new IllegalStateException();
 
         return instance;
+    }
+
+
+    static   public void setUserId(String userId) {
+        if ( !preferenceManager.contains("userId")) {
+            SharedPreferences.Editor PrefEdit = preferenceManager.edit();
+            PrefEdit.putString("userId",   userId);
+            PrefEdit.commit();
+        }
+     }
+
+  static   public String getUserId() {
+        if ( !preferenceManager.contains("userId")) {
+          return  null ;
+        }else {
+        return preferenceManager.getString("userId" , null) ;
+        }
     }
 
 }
