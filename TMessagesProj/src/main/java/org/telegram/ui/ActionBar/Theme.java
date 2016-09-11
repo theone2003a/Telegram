@@ -38,7 +38,7 @@ public class Theme {
     public static final int ACTION_BAR_PROFILE_SUBTITLE_COLOR = 0xffd7eafa;
     public static final int ACTION_BAR_MAIN_AVATAR_COLOR = 0xff26C6DA;
     public static final int ACTION_BAR_ACTION_MODE_TEXT_COLOR = 0xff737373;
-    public static final int ACTION_BAR_SELECTOR_COLOR = 0xff406d94;
+    public static final int ACTION_BAR_SELECTOR_COLOR = 0xff00ACC1;
 
     public static final int INPUT_FIELD_SELECTOR_COLOR = 0xffd6d6d6;
     public static final int ACTION_BAR_PICKER_SELECTOR_COLOR = 0xff3d3d3d;
@@ -47,7 +47,7 @@ public class Theme {
     public static final int ACTION_BAR_CHANNEL_INTRO_SELECTOR_COLOR = 0x2f000000;
     public static final int ACTION_BAR_MODE_SELECTOR_COLOR = 0xfff0f0f0;
     public static final int ACTION_BAR_BLUE_SELECTOR_COLOR = 0xff4981ad;
-    public static final int ACTION_BAR_CYAN_SELECTOR_COLOR = 0xff39849d;
+    public static final int ACTION_BAR_CYAN_SELECTOR_COLOR = 0xff00ACC1;
     public static final int ACTION_BAR_GREEN_SELECTOR_COLOR = 0xff48953d;
     public static final int ACTION_BAR_ORANGE_SELECTOR_COLOR = 0xffe67429;
     public static final int ACTION_BAR_PINK_SELECTOR_COLOR = 0xffd44e7b;
