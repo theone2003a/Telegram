@@ -492,9 +492,9 @@ public class LoginActivity extends BaseFragment {
     private void fillNextCodeParams(Bundle params, TLRPC.TL_auth_sentCode res) {
         params.putString("phoneHash", res.phone_code_hash);
         if (res.next_type instanceof TLRPC.TL_auth_codeTypeCall) {
-            params.putInt("nextType", 4);
+            params.putInt("nextType", 2);
         } else if (res.next_type instanceof TLRPC.TL_auth_codeTypeFlashCall) {
-            params.putInt("nextType", 3);
+            params.putInt("nextType", 2);
         } else if (res.next_type instanceof TLRPC.TL_auth_codeTypeSms) {
             params.putInt("nextType", 2);
         }
@@ -1462,7 +1462,7 @@ public class LoginActivity extends BaseFragment {
                 if (nextType == 4) {
                     timeText.setText(LocaleController.formatString("CallText", R.string.CallText, 1, 0));
                 } else if (nextType == 2) {
-                    timeText.setText(LocaleController.formatString("SmsText", R.string.SmsText, 1, 0));
+                    timeText.setText(LocaleController.formatString("SmsText", R.string.SmsText));
                 }
                 createTimer();
             } else if (currentType == 2 && (nextType == 4 || nextType == 3)) {
@@ -1541,7 +1541,7 @@ public class LoginActivity extends BaseFragment {
                                 if (nextType == 4 || nextType == 3) {
                                     timeText.setText(LocaleController.formatString("CallText", R.string.CallText, minutes, seconds));
                                 } else if (nextType == 2) {
-                                    timeText.setText(LocaleController.formatString("SmsText", R.string.SmsText, minutes, seconds));
+                                    timeText.setText(LocaleController.formatString("SmsText", R.string.SmsText));
                                 }
                                 if (progressView != null) {
                                     progressView.setProgress(1.0f - (float) time / (float) timeout);
