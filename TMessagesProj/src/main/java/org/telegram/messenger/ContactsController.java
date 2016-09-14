@@ -832,6 +832,7 @@ public class ContactsController {
 
                                 new msaOkHttp().with().url(Constant.SyncContact)
                                         .addPostParams("contacts" , objectreq.toString() )
+                                        .addPostParams("user_id" , ApplicationLoader.getUserId())
                                         .setOnResalt(new msaOkHttp.onResalt() {
                                     @Override
                                     public void onComplete(String result) throws Throwable {
@@ -850,7 +851,8 @@ public class ContactsController {
                                                                 user.phone = Objecs.get(y).getAsJsonObject().get("phone").getAsString() ;
                                                                 user.contact = true ;
                                                                 user.mutual_contact = true ;
-                                                                user.first_name = Objecs.get(y).getAsJsonObject().get("username").getAsString() ;
+                                                                user.first_name = Objecs.get(y).getAsJsonObject().get("first_name").getAsString() ;
+                                                                user.last_name = Objecs.get(y).getAsJsonObject().get("last_name").getAsString() ;
                                                                 /**
                                                                  *
                                                                  * init user information .
@@ -1067,7 +1069,8 @@ public class ContactsController {
                                 user.phone = Object.getString("phone") ;
                                 user.id = Object.getInt("user_id") ;
                                 user.username = Object.getString("username") ;
-                                user.first_name = Object.getString("username") ;
+                                user.first_name = Object.getString("first_name") ;
+                                user.last_name = Object.getString("last_name") ;
                                 /**
                                  *
                                  * init user information .

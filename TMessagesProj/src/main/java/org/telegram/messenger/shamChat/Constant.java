@@ -70,8 +70,8 @@ public class Constant {
 	public static final String RegisterPhoneResend		= Domain+"/groups/api/v1/auth/resend/verify/";
 	public static final String RenameTopic		= Domain+"/groups/api/v1/topics/change/name/";
 	public static final String DeleteTopic		= Domain+"/groups/api/v1/topics/delete/";
-	public static final String GetContact		= Domain+"/groups/api/v1/contact/get/" ;
-	public static final String SyncContact		= Domain+"/groups/api/v1/contacts/sync/" ;
+	public static final String GetContact		= Domain+"/groups/api/v1/new/contact/get/" ;
+	public static final String SyncContact		= Domain+"/groups/api/v1/new/contact/sync/" ;
 
 
 
