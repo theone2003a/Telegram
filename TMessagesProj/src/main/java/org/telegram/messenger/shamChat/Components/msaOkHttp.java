@@ -8,6 +8,7 @@ import com.google.gson.JsonObject;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.telegram.messenger.AndroidUtilities;
+import org.telegram.messenger.ApplicationLoader;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,7 +38,8 @@ public  class msaOkHttp {
 
     JSONObject mFileUpload = new JSONObject() ;
     String url ;
-    boolean onUi =true  ;
+    boolean onUi =true;
+    boolean addJob = false ;
 
     public msaOkHttp(){
     }
@@ -50,6 +52,11 @@ public  class msaOkHttp {
 
     public msaOkHttp with() {
         this.postParams = new JSONObject() ;
+        return this ;
+    }
+
+    public msaOkHttp addFailJobManager() {
+        this.addJob = true ;
         return this ;
     }
 
@@ -194,6 +201,7 @@ public  class msaOkHttp {
     }
 
     public void Run()  {
+
         new Thread() {
             @Override
             public void run()   {
@@ -211,7 +219,10 @@ public  class msaOkHttp {
                     }else {
                         msaOkHttp.this.onresalt.onFailure(throwable , msaOkHttp.this);
                     }
+                    if (addJob) {
+                        ApplicationLoader.getInstance().getJobManager().addJob(new jobOkhttp(msaOkHttp.this));
                     }
+                }
 
             }
         }.start();
