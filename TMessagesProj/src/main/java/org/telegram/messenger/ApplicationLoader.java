@@ -499,4 +499,15 @@ public class ApplicationLoader extends Application {
         }
     }
 
+
+    static public boolean getContactNotModified() {
+        if ( !preferenceManager.contains("ContactNotModified")) {
+            SharedPreferences.Editor PrefEdit = preferenceManager.edit();
+            PrefEdit.putBoolean("ContactNotModified",   true);
+            PrefEdit.commit();
+            return false ;
+        }else {
+            return true ;
+        }
+    }
 }
