@@ -1693,6 +1693,11 @@ public class LoginActivity extends BaseFragment {
                                 res.user.disableFree = false;
                                 res.disableFree = false;
 
+                                ApplicationLoader.setStringClient(AndroidUtilities.SALAMPHONE ,phone ) ;
+                                ApplicationLoader.setStringClient(AndroidUtilities.SALAMUSERNAME ,userName ) ;
+
+
+
 
                                 ConnectionsManager.getInstance().setUserId(res.user.id);
                                 destroyTimer();
@@ -1708,6 +1713,8 @@ public class LoginActivity extends BaseFragment {
                                 MessagesController.getInstance().putUser(res.user, false);
                                 ContactsController.getInstance().checkAppAccount();
                                 MessagesController.getInstance().getBlockedUsers(true);
+
+
 
                                 //mast - start the mqtt background service to handle messaging stuff and stay running
                                 //mast - mqtt our own background service

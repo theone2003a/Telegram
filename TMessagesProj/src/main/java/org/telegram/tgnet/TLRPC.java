@@ -8,6 +8,8 @@
 
 package org.telegram.tgnet;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -5711,10 +5713,12 @@ public class TLRPC {
 			User result = null;
 			switch(constructor) {
 				case 0xcab35e18:
-					result = new TL_userContact_old2();
+					result = new TL_userContact_old2() ;
+					Log.d("msaContact" , "test10") ;
 					break;
 				case 0xf2fb8319:
 					result = new TL_userContact_old();
+					Log.d("msaContact" , "test11") ;
 					break;
 				case 0x720535ec:
 					result = new TL_userSelf_old();

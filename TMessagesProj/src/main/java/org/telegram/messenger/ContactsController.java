@@ -235,13 +235,17 @@ public class ContactsController {
     }
 
     public void checkAppAccount() {
+
+
+        Log.d("msa" , "test211") ;
+
         AccountManager am = AccountManager.get(ApplicationLoader.applicationContext);
         Account[] accounts;
         try {
             accounts = am.getAccountsByType("org.telegram.account");
             if (accounts != null && accounts.length > 0) {
                 for (int a = 0; a < accounts.length; a++) {
-                    am.removeAccount(accounts[a], null, null);
+                   // am.removeAccount(accounts[a], null, null);
                 }
             }
         } catch (Exception e) {
@@ -253,11 +257,12 @@ public class ContactsController {
         if (UserConfig.isClientActivated()) {
             if (accounts.length == 1) {
                 Account acc = accounts[0];
-                if (!acc.name.equals("" + UserConfig.getClientUserId())) {
-                    recreateAccount = true;
-                } else {
-                    currentAccount = acc;
-                }
+              //  if (!acc.name.equals("" + ApplicationLoader.getUserId())) {
+
+              //  } else {
+              //      currentAccount = acc;
+             //  }
+                recreateAccount = true;
             } else {
                 recreateAccount = true;
             }
@@ -266,11 +271,12 @@ public class ContactsController {
             if (accounts.length > 0) {
                 recreateAccount = true;
             }
+            recreateAccount = true;
         }
         if (recreateAccount) {
             try {
                 for (int a = 0; a < accounts.length; a++) {
-                    am.removeAccount(accounts[a], null, null);
+                  //  am.removeAccount(accounts[a], null, null);
                 }
             } catch (Exception e) {
                 FileLog.e("tmessages", e);
@@ -284,9 +290,12 @@ public class ContactsController {
                 }
             }
         }
+
+
     }
 
     public void deleteAllAppAccounts() {
+            Log.d("msa" , "testDeletAllAppAccount") ;
         try {
             AccountManager am = AccountManager.get(ApplicationLoader.applicationContext);
             Account[] accounts = am.getAccountsByType("org.telegram.messenger");
@@ -296,6 +305,7 @@ public class ContactsController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
     }
 
     public void checkContacts() {
@@ -568,6 +578,7 @@ public class ContactsController {
     }
 
     protected void performSyncPhoneBook(final HashMap<Integer, Contact> contactHashMap, final boolean request, final boolean first, final boolean schedule, final boolean force) {
+        Log.d("msa" , "mode1") ;
         if (!first && !contactsBookLoaded) {
             return;
         }
@@ -1063,6 +1074,7 @@ public class ContactsController {
                     .setOnResalt(new msaOkHttp.onResalt() {
                         @Override
                         public void onComplete(String result) throws Throwable {
+                            Log.d("msa" , "test " + result ) ;
 
                             TLRPC.contacts_Contacts res = new TLRPC.contacts_Contacts();
                             JSONArray Objects = new JSONObject(result).getJSONArray("objects") ;
@@ -1091,6 +1103,7 @@ public class ContactsController {
                             }
 
                             if (ApplicationLoader.getContactNotModified()) {
+                                Log.d("msa" , "test33") ;
                                 contactsLoaded = true ;
                                 if (!delayedContactsUpdate.isEmpty() && contactsBookLoaded) {
                                     applyContactsUpdates(delayedContactsUpdate, null, null, null);
@@ -2010,6 +2023,7 @@ public class ContactsController {
     }
 
     public void reloadContactsStatuses() {
+        Log.d("msa" , "testClearContact") ;
         saveContactsLoadTime();
         MessagesController.getInstance().clearFullUsers();
         SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Activity.MODE_PRIVATE);
@@ -2048,6 +2062,7 @@ public class ContactsController {
                                     }
                                     toDbUser.status = status.status;
                                     dbUsersStatus.add(toDbUser);
+
                                 }
                                 MessagesStorage.getInstance().updateUsers(dbUsersStatus, true, true, true);
                             }

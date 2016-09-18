@@ -11,6 +11,7 @@ package org.telegram.messenger;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Base64;
+import android.util.Log;
 
 import org.telegram.tgnet.SerializedData;
 import org.telegram.tgnet.TLRPC;
@@ -51,10 +52,10 @@ public class UserConfig {
 
     public static int getNewMessageId() {
         int id;
-        synchronized (sync) {
+
             id = lastSendMessageId;
             lastSendMessageId--;
-        }
+
         return id;
     }
 
@@ -63,7 +64,7 @@ public class UserConfig {
     }
 
     public static void saveConfig(boolean withFile, File oldFile) {
-        synchronized (sync) {
+
             try {
                 SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("userconfing", Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = preferences.edit();
@@ -115,11 +116,15 @@ public class UserConfig {
             } catch (Exception e) {
                 FileLog.e("tmessages", e);
             }
-        }
+
     }
 
     public static boolean isClientActivated() {
-      if (ApplicationLoader.getUserId() == null) {
+
+
+
+      if (ApplicationLoader.getUserId() == null ) {
+
           return  false ;
       }else {
            return true ;
@@ -127,25 +132,74 @@ public class UserConfig {
     }
 
     public static int getClientUserId() {
-        synchronized (sync) {
+   //     synchronized (sync) {
+        if (currentUser==null || currentUser.phone ==null ) {
+            SalamClientCurrentUser() ;
+        }
             return currentUser != null ? currentUser.id : 0;
+
+    //    }
+    }
+
+
+    private static  void SalamClientCurrentUser() {
+        if (ApplicationLoader.getUserId() != null) {
+            TLRPC.User user = new TLRPC.TL_user();
+            user.bot = false;
+            user.bot_chat_history = false;
+            user.bot_info_version = 0;
+            user.bot_inline_geo = false;
+            user.bot_inline_placeholder = null;
+            user.bot_nochats = false;
+            user.contact = true;
+            user.deleted = false;
+            user.explicit_content = false;
+            user.first_name = null;
+            user.flags = 3167;
+            user.id = Integer.valueOf(ApplicationLoader.getUserId());
+            user.inactive = false;
+            user.last_name = null;
+            user.min = false;
+            user.mutual_contact = false;
+            user.phone = ApplicationLoader.getStringClient(AndroidUtilities.SALAMPHONE);
+            user.restricted = false;
+            user.restriction_reason = null;
+            user.self = true;
+            user.status = new TLRPC.TL_userStatusOffline();
+            user.status.disableFree = false;
+            user.status.expires = 0;
+            user.username = ApplicationLoader.getStringClient(AndroidUtilities.SALAMUSERNAME);
+            user.verified = false;
+            user.disableFree = false;
+            currentUser = user;
+            Log.d("msa" , "salamComfig " +  ApplicationLoader.getStringClient(AndroidUtilities.SALAMUSERNAME) )  ;
         }
     }
 
     public static TLRPC.User getCurrentUser() {
-        synchronized (sync) {
-            return currentUser;
+
+     //   synchronized (sync) {
+        if (currentUser==null || currentUser.phone ==null ) {
+            SalamClientCurrentUser() ;
         }
+
+        Log.d("msa" , "testget" +  (currentUser != null ? currentUser.phone : "")) ;
+            return currentUser;
+     //   }
     }
 
     public static void setCurrentUser(TLRPC.User user) {
-        synchronized (sync) {
-            currentUser = user;
+        Log.d("msa" , "testset" + (currentUser != null ? currentUser.phone : "")) ;
+       // synchronized (sync) {
+        if (user==null || user.phone ==null ) {
+            SalamClientCurrentUser() ;
         }
+            currentUser = user;
+       // }
     }
 
     public static void loadConfig() {
-        synchronized (sync) {
+
             final File configFile = new File(ApplicationLoader.getFilesDirFixed(), "user.dat");
             if (configFile.exists()) {
                 try {
@@ -251,7 +305,7 @@ public class UserConfig {
                     passcodeSalt = new byte[0];
                 }
             }
-        }
+
     }
 
     public static boolean checkPasscode(String passcode) {
@@ -290,31 +344,34 @@ public class UserConfig {
     }
 
     public static void clearConfig() {
-        currentUser = null;
-        registeredForPush = false;
-        contactsHash = "";
-        lastSendMessageId = -210000;
-        lastBroadcastId = -1;
-        saveIncomingPhotos = false;
-        blockedUsersLoaded = false;
-        migrateOffsetId = -1;
-        migrateOffsetDate = -1;
-        migrateOffsetUserId = -1;
-        migrateOffsetChatId = -1;
-        migrateOffsetChannelId = -1;
-        migrateOffsetAccess = -1;
-        appLocked = false;
-        passcodeType = 0;
-        passcodeHash = "";
-        passcodeSalt = new byte[0];
-        autoLockIn = 60 * 60;
-        lastPauseTime = 0;
-        useFingerprint = true;
-        draftsLoaded = true;
-        isWaitingForPasscodeEnter = false;
-        lastUpdateVersion = BuildVars.BUILD_VERSION_STRING;
-        lastContactsSyncTime = (int) (System.currentTimeMillis() / 1000) - 23 * 60 * 60;
-        lastHintsSyncTime = (int) (System.currentTimeMillis() / 1000) - 25 * 60 * 60;
-        saveConfig(true);
+        if (ApplicationLoader.getUserId() == null) {
+            Log.d("msa" , "testClear") ;
+            currentUser = null;
+            registeredForPush = false;
+            contactsHash = "";
+            lastSendMessageId = -210000;
+            lastBroadcastId = -1;
+            saveIncomingPhotos = false;
+            blockedUsersLoaded = false;
+            migrateOffsetId = -1;
+            migrateOffsetDate = -1;
+            migrateOffsetUserId = -1;
+            migrateOffsetChatId = -1;
+            migrateOffsetChannelId = -1;
+            migrateOffsetAccess = -1;
+            appLocked = false;
+            passcodeType = 0;
+            passcodeHash = "";
+            passcodeSalt = new byte[0];
+            autoLockIn = 60 * 60;
+            lastPauseTime = 0;
+            useFingerprint = true;
+            draftsLoaded = true;
+            isWaitingForPasscodeEnter = false;
+            lastUpdateVersion = BuildVars.BUILD_VERSION_STRING;
+            lastContactsSyncTime = (int) (System.currentTimeMillis() / 1000) - 23 * 60 * 60;
+            lastHintsSyncTime = (int) (System.currentTimeMillis() / 1000) - 25 * 60 * 60;
+            saveConfig(true);
+        }
     }
 }

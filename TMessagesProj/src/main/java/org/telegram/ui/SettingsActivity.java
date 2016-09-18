@@ -322,6 +322,9 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             MessagesController.getInstance().performLogout(true);
+                            SharedPreferences.Editor PrefEdit = ApplicationLoader.preferenceManager.edit();
+                            PrefEdit.remove("ContactNotModified") ;
+                            PrefEdit.commit();
                         }
                     });
                     builder.setNegativeButton(LocaleController.getString("Cancel", R.string.Cancel), null);

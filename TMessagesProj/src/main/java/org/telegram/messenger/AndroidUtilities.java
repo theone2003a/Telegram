@@ -88,6 +88,9 @@ import java.util.regex.Pattern;
 
 public class AndroidUtilities {
 
+    public static boolean deActiveUser = false ;
+    public static final String SALAMPHONE = "SalamPhone" ;
+    public static final String SALAMUSERNAME = "SalamUsername" ;
     private static final Hashtable<String, Typeface> typefaceCache = new Hashtable<>();
     private static int prevOrientation = -10;
     private static boolean waitingForSms = false;

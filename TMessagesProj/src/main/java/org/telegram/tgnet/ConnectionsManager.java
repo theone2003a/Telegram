@@ -9,6 +9,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.PowerManager;
+import android.util.Log;
 
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.BuildVars;
@@ -99,23 +100,49 @@ public class ConnectionsManager {
     }
 
     public int sendRequest(TLObject object, RequestDelegate completionBlock) {
+        if (SalamRequestCheck(object.getClass().toString())){
+            completionBlock = null ;
+            return  -13 ;
+        }
+
         return sendRequest(object, completionBlock, null, 0);
     }
 
     public int sendRequest(TLObject object, RequestDelegate completionBlock, int flags) {
+        if (SalamRequestCheck(object.getClass().toString())){
+            completionBlock = null ;
+            return  -13 ;
+        }
         return sendRequest(object, completionBlock, null, flags, DEFAULT_DATACENTER_ID, ConnectionTypeGeneric, true);
     }
 
     public int sendRequest(TLObject object, RequestDelegate completionBlock, int flags, int connetionType) {
+        if (SalamRequestCheck(object.getClass().toString())){
+            completionBlock = null ;
+            return  -13 ;
+        }
+
         return sendRequest(object, completionBlock, null, flags, DEFAULT_DATACENTER_ID, connetionType, true);
     }
 
     public int sendRequest(TLObject object, RequestDelegate completionBlock, QuickAckDelegate quickAckBlock, int flags) {
+        if (SalamRequestCheck(object.getClass().toString())){
+            completionBlock = null ;
+            return  -13 ;
+        }
+
         return sendRequest(object, completionBlock, quickAckBlock, flags, DEFAULT_DATACENTER_ID, ConnectionTypeGeneric, true);
     }
 
-    public int sendRequest(final TLObject object, final RequestDelegate onComplete, final QuickAckDelegate onQuickAck, final int flags, final int datacenterId, final int connetionType, final boolean immediate) {
+    public int sendRequest(final TLObject object, RequestDelegate onComplete, final QuickAckDelegate onQuickAck, final int flags, final int datacenterId, final int connetionType, final boolean immediate) {
+
+        if (SalamRequestCheck(object.getClass().toString())){
+            onComplete = null ;
+            return  -13 ;
+        }
+
         final int requestToken = lastRequestToken.getAndIncrement();
+        final RequestDelegate finalOnComplete = onComplete;
         Utilities.stageQueue.postRunnable(new Runnable() {
             @Override
             public void run() {
@@ -147,7 +174,7 @@ public class ConnectionsManager {
                                 Utilities.stageQueue.postRunnable(new Runnable() {
                                     @Override
                                     public void run() {
-                                        onComplete.run(finalResponse, finalError);
+                                        finalOnComplete.run(finalResponse, finalError);
                                         if (finalResponse != null) {
                                             finalResponse.freeResources();
                                         }
@@ -165,6 +192,18 @@ public class ConnectionsManager {
         });
         return requestToken;
     }
+
+    public boolean SalamRequestCheck(String className) {
+        Log.d("msaReq" , className) ;
+        if (className.contains("TL_account_registerDevice") || className.contains("TL_contacts_getBlocked")
+                || className.contains("TL_contacts_getTopPeers") || className.contains("TL_updates_getState")
+                || className.contains("TL_account_updateStatus")
+                || className.contains("TL_messages_getDialogs")
+                ){
+            return true ;  }else
+        {
+        return false ;
+    }}
 
     public void cancelRequest(int token, boolean notifyServer) {
         native_cancelRequest(token, notifyServer);
@@ -320,8 +359,8 @@ public class ConnectionsManager {
             @Override
             public void run() {
                 if (UserConfig.getClientUserId() != 0) {
-                    UserConfig.clearConfig();
-                    MessagesController.getInstance().performLogout(false);
+                    //UserConfig.clearConfig();
+                   // MessagesController.getInstance().performLogout(false);
                 }
             }
         });

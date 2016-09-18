@@ -280,6 +280,7 @@ public class ApplicationLoader extends Application {
 
         MessagesController.getInstance();
         ConnectionsManager.getInstance().init(BuildVars.BUILD_VERSION, TLRPC.LAYER, BuildVars.APP_ID, deviceModel, systemVersion, appVersion, langCode, configPath, FileLog.getNetworkLogPath(), UserConfig.getClientUserId(), enablePushConnection);
+
         if (UserConfig.getCurrentUser() != null) {
             MessagesController.getInstance().putUser(UserConfig.getCurrentUser(), true);
             ConnectionsManager.getInstance().applyCountryPortNumber(UserConfig.getCurrentUser().phone);
@@ -310,7 +311,7 @@ public class ApplicationLoader extends Application {
 
         applicationHandler = new Handler(applicationContext.getMainLooper());
 
-        startPushService();
+       // startPushService();
 
     }
 
@@ -484,30 +485,40 @@ public class ApplicationLoader extends Application {
 
 
     static   public void setUserId(String userId) {
-        if ( !preferenceManager.contains("userId")) {
             SharedPreferences.Editor PrefEdit = preferenceManager.edit();
             PrefEdit.putString("userId",   userId);
+            AndroidUtilities.deActiveUser = false ;
             PrefEdit.commit();
-        }
      }
-
-  static   public String getUserId() {
+    static   public String getUserId() {
         if ( !preferenceManager.contains("userId")) {
           return  null ;
         }else {
         return preferenceManager.getString("userId" , null) ;
         }
     }
-
-
     static public boolean getContactNotModified() {
         if ( !preferenceManager.contains("ContactNotModified")) {
             SharedPreferences.Editor PrefEdit = preferenceManager.edit();
-            PrefEdit.putBoolean("ContactNotModified",   true);
+            PrefEdit.putBoolean("ContactNotModified",   true) ;
             PrefEdit.commit();
             return false ;
         }else {
             return true ;
         }
     }
+    static  public  String getStringClient(String key) {
+        if ( !preferenceManager.contains(key)) {
+            return  null ;
+        }else {
+            return preferenceManager.getString(key , null) ;
+        }
+    }
+    static public void setStringClient(String key  , String value) {
+        SharedPreferences.Editor PrefEdit = preferenceManager.edit();
+        PrefEdit.putString(key,   value);
+        AndroidUtilities.deActiveUser = false ;
+        PrefEdit.commit();
+    }
+
 }

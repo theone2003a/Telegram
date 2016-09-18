@@ -11,6 +11,7 @@ package org.telegram.messenger;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
 
@@ -4490,6 +4491,7 @@ public class MessagesStorage {
     }
 
     private void updateUsersInternal(final ArrayList<TLRPC.User> users, final boolean onlyStatus, final boolean withTransaction) {
+        Log.d("msaContact" , "test" ) ;
         if (Thread.currentThread().getId() != storageQueue.getId()) {
             throw new RuntimeException("wrong db thread");
         }
@@ -4558,6 +4560,7 @@ public class MessagesStorage {
     }
 
     public void updateUsers(final ArrayList<TLRPC.User> users, final boolean onlyStatus, final boolean withTransaction, boolean useQueue) {
+       Log.d("msaContact" , "test3") ;
         if (users.isEmpty()) {
             return;
         }

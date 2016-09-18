@@ -16,6 +16,7 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Base64;
+import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
 import android.widget.Toast;
@@ -1037,6 +1038,7 @@ public class MessagesController implements NotificationCenter.NotificationCenter
     }
 
     public void loadFullUser(final TLRPC.User user, final int classGuid, boolean force) {
+        Log.d(" msaContact" , user.phone + " " + user.id + " " + user.first_name + " " + user.last_name ) ;
         if (user == null || loadingFullUsers.contains(user.id) || !force && loadedFullUsers.contains(user.id)) {
             return;
         }
@@ -4398,7 +4400,8 @@ public class MessagesController implements NotificationCenter.NotificationCenter
     }
 
     public void performLogout(boolean byUser) {
-        SharedPreferences.Editor editor = ApplicationLoader.applicationContext.getSharedPreferences("Notifications", Activity.MODE_PRIVATE).edit();
+
+       SharedPreferences.Editor editor = ApplicationLoader.applicationContext.getSharedPreferences("Notifications", Activity.MODE_PRIVATE).edit();
         editor.clear().commit();
         editor = ApplicationLoader.applicationContext.getSharedPreferences("emoji", Activity.MODE_PRIVATE).edit();
         editor.putLong("lastGifLoadTime", 0).commit();
@@ -4417,11 +4420,13 @@ public class MessagesController implements NotificationCenter.NotificationCenter
         } else {
             ConnectionsManager.getInstance().cleanup();
         }
+        ApplicationLoader.setUserId(null);
         UserConfig.clearConfig();
         NotificationCenter.getInstance().postNotificationName(NotificationCenter.appDidLogout);
         MessagesStorage.getInstance().cleanup(false);
         cleanup();
         ContactsController.getInstance().deleteAllAppAccounts();
+
     }
 
     public void generateUpdateMessage() {
